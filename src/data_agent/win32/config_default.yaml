@@ -1,0 +1,185 @@
+service:
+  id: '' # If empty - host name will be used
+  type: 'data-agent'
+  domain: 'data_1'
+  keep_alive_seconds: 1
+
+broker:
+  uri: "amqp://guest:guest@127.0.0.1/"
+  timeout: 5
+
+connections: {}
+
+daq_jobs: {}
+
+manipulated_tags: {}
+
+trace:
+  slow_callbacks: 0
+  asyncio_debug_mode: False
+
+log: # standard logging dictConfig
+  version: 1
+  disable_existing_loggers: True
+  formatters:
+    brief:
+      format: '%(name)s: %(message)s'
+      datefmt: '%Y-%m-%d %H:%M:%S'
+    standard:
+      format: '%(asctime)s [%(levelname)s] %(name)s: %(message).300s'
+      datefmt: '%Y-%m-%d %H:%M:%S'
+
+  handlers:
+    console:
+      class: 'logging.StreamHandler'
+      level: 'INFO'
+      formatter: 'standard'
+      stream: 'ext://sys.stdout'  # Default is stderr
+
+    file:
+      class : 'logging.handlers.RotatingFileHandler'
+      level: 'DEBUG'
+      formatter: 'standard'
+      filename: 'data-agent.log'
+      maxBytes: 1048576
+      backupCount: 5
+
+    err_file:
+      class : 'logging.handlers.RotatingFileHandler'
+      level: 'ERROR'
+      formatter: 'standard'
+      filename: 'data-agent-err.log'
+      maxBytes: 1048576
+      backupCount: 5
+
+#    amqp:
+#      class : 'microservice_bridge.logging_amqp_handler.AmqpHandler'
+#      level: 'INFO'
+#      formatter: 'standard'
+
+    ntevent:
+      class: 'data_agent.win32.win_logger.WinLogHandler'
+#      class: 'logging.NTEventLogHandler'
+      level: 'DEBUG'
+      formatter: 'brief'
+      stream: 'ext://sys.stdout'  # Default is stderr
+
+  loggers:
+#      '':   # root logger
+#          handlers: ['default'],
+#          level: 'WARNING',
+#          propagate: False
+
+#    microservice_bridge.amq_broker_connector:
+#      handlers: ['console', 'ntevent', 'file', 'err_file']
+#      level: 'INFO'
+#      propagate: True
+
+    asyncio:
+      handlers: ['console', 'err_file']
+      level: 'ERROR'
+      propagate: True
+
+#    pamqp:
+#      handlers: ['console', 'err_file']
+#      level: 'ERROR'
+#      propagate: True
+#
+#    aiormq:
+#      handlers: ['console', 'err_file']
+#      level: 'ERROR'
+#      propagate: True
+#
+#    aio_pika:
+#      handlers: ['console', 'ntevent', 'file', 'err_file']
+#      level: 'ERROR'
+#      propagate: True
+#
+#    aio_pika.patterns.rpc:
+#      handlers: ['console', 'ntevent', 'file', 'err_file']
+#      level: 'WARN'
+#      propagate: True
+#
+#    Pyro4:
+#      handlers: ['console', 'ntevent', 'file', 'err_file']
+#      level: 'ERROR'
+#      propagate: True
+
+    apscheduler.scheduler:
+      handlers: ['console', 'err_file']
+      level: 'INFO'
+      propagate: True
+
+    apscheduler.executors.default:
+      handlers: ['console', 'err_file']
+      level: 'WARN'
+      propagate: True
+
+    apscheduler.executors.service_discovery:
+      handlers: ['console', 'err_file']
+      level: 'WARN'
+      propagate: True
+
+    data_agent:
+#      handlers: ['console', 'ntevent', 'file', 'err_file', 'amqp']
+      handlers: ['console', 'ntevent', 'file', 'err_file']
+      level: 'DEBUG'
+      propagate: True
+
+    __main__: # if __name__ == '__main__'
+#      handlers: ['console', 'ntevent', 'file', 'err_file', 'amqp']
+      handlers: ['console', 'ntevent', 'file', 'err_file']
+      level: 'DEBUG'
+      propagate: False
+
+    data_agent.api:
+#      handlers: ['console', 'ntevent', 'file', 'err_file', 'amqp']
+      handlers: ['console', 'ntevent', 'file', 'err_file']
+      level: 'DEBUG'
+      propagate: False
+
+    data_agent.main:
+#      handlers: ['console', 'ntevent', 'file', 'err_file', 'amqp']
+      handlers: ['console', 'ntevent', 'file', 'err_file']
+      level: 'DEBUG'
+      propagate: False
+
+    data_agent.agent:
+#      handlers: ['console', 'ntevent', 'file', 'err_file', 'amqp']
+      handlers: ['console', 'ntevent', 'file', 'err_file']
+      level: 'DEBUG'
+      propagate: False
+
+    data_agent.config_manager:
+#      handlers: ['console', 'ntevent', 'file', 'err_file', 'amqp']
+      handlers: ['console', 'ntevent', 'file', 'err_file']
+      level: 'INFO'
+      propagate: False
+
+#    aiodebug.log_slow_callbacks:
+#      handlers: ['console', 'ntevent', 'file', 'err_file', 'amqp']
+#      level: 'INFO'
+#      propagate: False
+#
+    data_agent.daq_scheduler:
+#      handlers: ['console', 'ntevent', 'file', 'err_file', 'amqp']
+      handlers: ['console', 'ntevent', 'file', 'err_file']
+      level: 'DEBUG'
+      propagate: False
+
+    data_agent.connection_manager:
+      handlers: ['console', 'err_file']
+      level: 'DEBUG'
+      propagate: False
+
+    data_agent.safe_manipulator:
+      handlers: ['console', 'err_file']
+      level: 'INFO'
+      propagate: False
+
+    ia_plugin:
+      handlers: ['console', 'err_file']
+      level: 'INFO'
+      propagate: True
+
+  level: 2

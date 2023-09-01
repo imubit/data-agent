@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    restart: always
+    image: rabbitmq:3-management
+    hostname: data-rabbit
+    volumes:
+      - ./docker/rabbitmq/etc:/etc/rabbitmq
+      - ./docker/rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+      - ./docker/rabbitmq/logs:/var/log/rabbitmq/log
+    expose:
+      - "5672"
+      - "15672"
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - backbone
+
+networks:
+  backbone:
+    driver: bridge
