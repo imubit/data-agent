@@ -12,7 +12,7 @@ import sys
 
 import pytest
 from aio_pika import ExchangeType, connect_robust
-from microservice_bridge.amq_broker_connector import AmqBrokerConnector, CustomJsonRPC
+from amqp_fabric.amq_broker_connector import AmqBrokerConnector, CustomJsonRPC
 
 from data_agent import dist_name
 from data_agent.api import ServiceApi

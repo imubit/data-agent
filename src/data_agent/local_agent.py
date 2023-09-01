@@ -1,5 +1,4 @@
 import logging
-import re
 
 from data_agent import __version__
 from data_agent.api import ServiceApi
@@ -35,9 +34,7 @@ class LocalAgent:
         service_config = component_config_view(self._config, CONFIG_SECTION_SERVICE)
         log_config = component_config_view(self._config, CONFIG_SECTION_LOG)
 
-        log.info(
-            "************ Initializing Data Agent Service ***********************"
-        )
+        log.info("************ Initializing Data Agent Service ***********************")
         log.info(f" Version:              {__version__}")
         log.info(f" Service Id:           {service_config.id}")
         log.info(

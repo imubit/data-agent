@@ -1,7 +1,7 @@
 import logging
 import re
 
-from microservice_bridge.amq_broker_connector import AmqBrokerConnector
+from amqp_fabric.amq_broker_connector import AmqBrokerConnector
 
 from data_agent import __version__
 from data_agent.api import ServiceApi
@@ -41,9 +41,7 @@ class BrokerAgent:
         uri_pattern = re.compile(r"(\b(?:[a-z]{,5})://.*:)(.*)(@[^ \b]+)", re.MULTILINE)
         broker_uri_wo_pass = re.sub(uri_pattern, r"\1**********\3", broker_config.uri)
 
-        log.info(
-            "************ Initializing Data Agent Service ***********************"
-        )
+        log.info("************ Initializing Data Agent Service ***********************")
         log.info(f" Version:              {__version__}")
         log.info(f" Service Id:           {service_config.id}")
         log.info(

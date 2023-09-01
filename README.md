@@ -68,15 +68,6 @@ rabbitmq-plugins enable rabbitmq_management
 
 * A good explanation for RabbitMQ exchanges - https://derickbailey.com/2014/11/14/understanding-the-relationship-between-rabbitmq-exchanges-queues-and-bindings/
 
-## Development
-
-### Requirements Install
-
-```bash
-pip install --trusted-host 10.10.30.245 --index-url http://10.10.30.245:8081/repository//pypi-preview/ -r requirements.txt
-
-```
-
 
 ### Service troubleshooting
 

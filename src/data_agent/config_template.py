@@ -123,7 +123,7 @@ config_template = {
             #     'level': str,
             #     'propagate': bool
             # },
-            # 'microservice_bridge.amq_broker_connector': {
+            # 'amqp_fabric.amq_broker_connector': {
             #     'handlers': confuse.StrSeq(),
             #     'level': str,
             #     'propagate': bool

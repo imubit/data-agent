@@ -3,7 +3,7 @@ import logging
 import time
 from typing import Union
 
-from microservice_bridge.abstract_service_api import AbstractServiceApi
+from amqp_fabric.abstract_service_api import AbstractServiceApi
 
 log = logging.getLogger(__name__)
 

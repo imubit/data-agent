@@ -53,7 +53,7 @@ log: # standard logging dictConfig
       backupCount: 5
 
 #    amqp:
-#      class : 'microservice_bridge.logging_amqp_handler.AmqpHandler'
+#      class : 'amqp_fabric.logging_amqp_handler.AmqpHandler'
 #      level: 'INFO'
 #      formatter: 'standard'
 
@@ -70,7 +70,7 @@ log: # standard logging dictConfig
 #          level: 'WARNING',
 #          propagate: False
 
-#    microservice_bridge.amq_broker_connector:
+#    amqp_fabric.amq_broker_connector:
 #      handlers: ['console', 'ntevent', 'file', 'err_file']
 #      level: 'INFO'
 #      propagate: True

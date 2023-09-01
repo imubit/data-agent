@@ -20,9 +20,7 @@ def _validate_connection_exists(func):
             conn_name = args[0]
 
         if conn_name not in self.list_connections(include_details=False):
-            raise UnrecognizedConnection(
-                'Connection "{}" does not exists.'.format(conn_name)
-            )
+            raise UnrecognizedConnection(f'Connection "{conn_name}" does not exists.')
 
         return func(self, *args, **kwargs)
 
@@ -37,9 +35,7 @@ def _validate_connection_enabled(func):
             conn_name = args[0]
 
         if conn_name not in self.list_connections(include_details=False):
-            raise UnrecognizedConnection(
-                'Connection "{}" does not exists.'.format(conn_name)
-            )
+            raise UnrecognizedConnection(f'Connection "{conn_name}" does not exists.')
 
         if not self._connections_map[conn_name].connected:
             raise ConnectionNotActive("Connection not active")
@@ -136,7 +132,7 @@ class ConnectionManager:
         if conn_name in self._connections_map.keys():
             if not ignore_existing:
                 raise ConnectionAlreadyExists(
-                    'Connection "{}" already exists.'.format(conn_name)
+                    f'Connection "{conn_name}" already exists.'
                 )
 
             existing_conn = self._connections_map[conn_name]
@@ -161,9 +157,9 @@ class ConnectionManager:
         return self._conn_descriptor(conn)
 
     def _create_connection(self, conn_name, conn_type, **kwargs):
-        if not conn_type in self._connector_classes.keys():
+        if conn_type not in self._connector_classes.keys():
             raise UnrecognizedConnectionType(
-                'Unrecognized connection type "{}".'.format(conn_type)
+                f'Unrecognized connection type "{conn_type}".'
             )
 
         self._connections_map[conn_name] = self._connector_classes[conn_type](

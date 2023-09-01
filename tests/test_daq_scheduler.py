@@ -2,6 +2,7 @@ import asyncio
 import json
 
 import pytest
+from amqp_fabric.amq_broker_connector import AmqBrokerConnector
 from conftest import (
     AMQP_URL,
     CONFIG_SECTION_CONNECTION_MANAGER,
@@ -11,7 +12,6 @@ from conftest import (
     SERVICE_ID,
     SERVICE_TYPE,
 )
-from microservice_bridge.amq_broker_connector import AmqBrokerConnector
 
 from data_agent.config_manager import PersistentComponent
 from data_agent.connection_manager import ConnectionManager
