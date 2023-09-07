@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from enum import Enum
 from functools import wraps
 from typing import Union
 

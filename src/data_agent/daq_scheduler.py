@@ -78,12 +78,13 @@ class DAQScheduler(AsyncIOScheduler):
             self._total_iterations_counter += 1
             self._job_state[job_id]["iter_counter"] += 1
             log.debug(
-                f'(#{self._total_iterations_counter}): Job {job_id}: Data publish (read time={read_time:.2f}s): {", ".join(to_publish[:120])}'
+                f"(#{self._total_iterations_counter}): Job {job_id}: "
+                f'Data publish (read time={read_time:.2f}s): {", ".join(to_publish[:120])}'
             )
             broker.publish_data(msg, headers={"job_id": job_id})
 
-        except:
-            log.exception(f'Exception in job "{job_id}"')
+        except Exception as e:
+            log.exception(f'Exception in job "{job_id}" - {e}')
 
     def list_jobs(self, conn_name=None):
         if conn_name:
@@ -139,7 +140,8 @@ class DAQScheduler(AsyncIOScheduler):
                     },
                 )
             log.info(
-                f"Job  '{job_id}' modified (Connection: '{conn_name}', Seconds: {seconds}  with tags: '{tags}'  from_cache: '{from_cache}')."
+                f"Job  '{job_id}' modified (Connection: '{conn_name}', Seconds: {seconds}  "
+                f"with tags: '{tags}'  from_cache: '{from_cache}')."
             )
 
         else:
@@ -154,7 +156,8 @@ class DAQScheduler(AsyncIOScheduler):
                 },
             )
             log.info(
-                f"Job  '{job_id}' created (Connection: '{conn_name}', Seconds: {seconds}  with tags: '{tags}'  from_cache:'{from_cache}')."
+                f"Job  '{job_id}' created (Connection: '{conn_name}', Seconds: {seconds}  "
+                f"with tags: '{tags}'  from_cache:'{from_cache}')."
             )
 
         return job
