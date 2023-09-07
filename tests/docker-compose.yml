@@ -3,7 +3,7 @@ version: '3.8'
 services:
   rabbitmq:
     restart: always
-    image: rabbitmq:3-management
+    image: rabbitmq:3.9-management
     hostname: data-rabbit
     volumes:
       - ./docker/rabbitmq/etc:/etc/rabbitmq
