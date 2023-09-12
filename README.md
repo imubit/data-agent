@@ -1,83 +1,42 @@
-# data-agent
+# Data Agent
 
-Add a short description here!
-
+Python package for accessing real-time and historical data on industrial historians and control systems.
+Different historian protocols and APIs are implemented through standalone plugins.
 
 ## Description
 
-A longer description of your project goes here...
+The package provides a unified data access API having several usage scenarios:
+
+* As a Python package
+* As a command line CLI
+* As a service (Windows or Linux) using AMQ protocol
 
 ## Installation
 
-### Python install
+```commandline
+pip install data-agent
+```
 
-* Python 3.8.3 32bit for ALL user + add to path
+## Python Package Usage
+
+```python
+from data_agent.local_agent import LocalAgent
+
+agent = LocalAgent()
+agent.init(is_service=False)
+
+agent.api.list_supported_connectors()
+
+agent.api.create_connection(...)
 
 
-### Command Line Start
+agent.close()
 
-```bash
-imagent --service.id my_service --broker.uri amqp://guest:guest@192.168.4.23/
 ```
 
 
-
-### Service Building Executable with pyinstaller
-
-Copy `c:\Python38-32\Lib\site-packages\pywin32_system32\pywintypes38.dll` to `c:\Windows\System32`
-(https://github.com/fkie-cad/RoAMer/issues/5)
-
+## Command Line Usage
 
 ```bash
-pyinstaller imagent-svc.spec --clean
-```
-
-THis will recreate the `spec` file
-```bash
-pyinstaller --distpath .\dist --workpath .\build --hiddenimport win32timezone -F src/data_agent/win32/service.py
-```
-
-### Uncompiled Service Install/Uninstall
-
-Installing
-
-```bash
-copy "C:\Python38-32\lib\site-packages\pywin32_system32\pywintypes38.dll"  "C:\Python38-32\lib\site-packages\win32"
-
-
-python service.py install
-python service.py update
-python service.py remove
-
-python service.py start
-```
-
-Running interactive
-
-```bash
-python service.py debug
-
-```
-
-#### RabbitMQ
-
-Enable management panel:
-```bash
-rabbitmq-plugins enable rabbitmq_management
-```
-
-* A good explanation for RabbitMQ exchanges - https://derickbailey.com/2014/11/14/understanding-the-relationship-between-rabbitmq-exchanges-queues-and-bindings/
-
-
-### Service troubleshooting
-
-#### Error starting service: The service did not respond to the start or control request in a timely fashion.
-
-* https://stackoverflow.com/questions/41200068/python-windows-service-error-starting-service-the-service-did-not-respond-to-t
-
-#### Error removing service: The specified service has been marked for deletion. (1072)
-
-```bash
-sc queryex imubit_opcda_agent
-
+dagent --service.id my_service --broker.uri amqp://guest:guest@192.168.4.23/
 ```
