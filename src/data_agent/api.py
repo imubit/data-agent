@@ -153,7 +153,7 @@ class ServiceApi(AbstractServiceApi):
 
         :param conn_name:
         :param tags:
-        :param properties: None - retrieve all properties (or provide 1 or more properties to retrieve)
+        :param attributes: None - retrieve all attributes (or provide 1 or more attributes to retrieve)
         :return:
         """
         return self._connection_manager.connection(conn_name).read_tag_attributes(
