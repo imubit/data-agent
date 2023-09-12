@@ -9,14 +9,9 @@ import six
 
 from data_agent import __version__
 from data_agent.api import ServiceApi
-from data_agent.config_manager import (
-    PersistentComponent,
-    component_config_view,
-    init_configuration,
-)
+from data_agent.config_manager import PersistentComponent, init_configuration
 from data_agent.config_template import (
     CONFIG_SECTION_CONNECTION_MANAGER,
-    CONFIG_SECTION_LOG,
     CONFIG_SECTION_SAFE_MANIPULATOR,
 )
 from data_agent.connection_manager import ConnectionManager
@@ -94,8 +89,6 @@ def exec_command(parser, enable_persistance=True):
         is_service=False, loop=None, parser=parser
     )
 
-    log_config = component_config_view(config, CONFIG_SECTION_LOG)
-
     connection_manager = ConnectionManager(
         PersistentComponent(
             config,
@@ -131,8 +124,6 @@ def exec_command(parser, enable_persistance=True):
 
 def run():
     parser = argparse.ArgumentParser(description="Data Agent CLI")
-    subparsers = parser.add_subparsers(dest="instruction", help="Execute API call")
-    parser_exec = subparsers.add_parser("exec")
 
     known_args, unknown = parser.parse_known_args()
 

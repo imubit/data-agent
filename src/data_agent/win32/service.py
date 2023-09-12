@@ -1,17 +1,10 @@
 import asyncio
-import random
-import socket
 import sys
-import time
-from pathlib import Path
 
 import servicemanager
-import win32event
-import win32service
 import win32serviceutil
 
 from data_agent.broker_agent import BrokerAgent
-from data_agent.broker_agent_main import run_event_loop
 from data_agent.connection_manager import ConnectionManager
 from data_agent.win32.win_service import SMWinservice
 

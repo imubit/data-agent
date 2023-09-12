@@ -2,17 +2,8 @@ import random
 from datetime import datetime
 from typing import Union
 
-from data_agent.abstract_connector import (
-    AbstractConnector,
-    SupportedOperation,
-    active_connection,
-)
-from data_agent.connector_exceptions import (
-    ConnectionNotActive,
-    ErrorAddingTagsToGroup,
-    TagsGroupAlreadyExists,
-    TagsGroupNotFound,
-)
+from data_agent.abstract_connector import SupportedOperation, active_connection
+from data_agent.connector_exceptions import ErrorAddingTagsToGroup
 from data_agent.groups_aware_connector import GroupsAwareConnector
 
 
@@ -202,7 +193,7 @@ class FakeConnector(GroupsAwareConnector):
         try:
             for tag in tags:
                 path_list = tag.split(".")
-                subtree = _get_from_dict(self._tags, path_list)
+                _get_from_dict(self._tags, path_list)
 
             self._groups[group_name] = tags
         except KeyError:

@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 import pytest
 from conftest import CONFIG_SECTION_SAFE_MANIPULATOR
 

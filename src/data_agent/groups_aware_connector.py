@@ -1,5 +1,4 @@
 from .abstract_connector import AbstractConnector, active_connection, group_exists
-from .exceptions import TagsGroupNotFound
 
 
 class GroupsAwareConnector(AbstractConnector):
