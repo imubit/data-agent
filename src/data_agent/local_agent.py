@@ -28,9 +28,14 @@ class LocalAgent:
     _scheduler = None
     _exchanger = None
     _api = None
+    _is_service = None
 
-    def init(self, is_service=False, enable_persistance=True):
-        self._config, _ = init_configuration(is_service, loop=None)
+    def __init__(self, is_service=False, enable_persistance=True):
+        self._is_service = is_service
+        self._enable_persistance = enable_persistance
+
+    def open(self):
+        self._config, _ = init_configuration(self._is_service, loop=None)
         service_config = component_config_view(self._config, CONFIG_SECTION_SERVICE)
         log_config = component_config_view(self._config, CONFIG_SECTION_LOG)
 
@@ -50,7 +55,7 @@ class LocalAgent:
             PersistentComponent(
                 self._config,
                 CONFIG_SECTION_CONNECTION_MANAGER,
-                enable_persistence=enable_persistance,
+                enable_persistence=self._enable_persistance,
             )
         )
         self._safe_manipulator = SafeManipulator(
@@ -58,7 +63,7 @@ class LocalAgent:
             PersistentComponent(
                 self._config,
                 CONFIG_SECTION_SAFE_MANIPULATOR,
-                enable_persistence=enable_persistance,
+                enable_persistence=self._enable_persistance,
             ),
         )
 
@@ -87,15 +92,29 @@ class LocalAgent:
         return self._api
 
     def close(self):
-        log.info("************ Starting Agent Termination *************************")
-        self._connection_manager.close()
-        self._config = None
-        self._broker_conn = None
-        self._connection_manager = None
-        self._exchanger = None
-        self._safe_manipulator = None
-        self._scheduler = None
-        log.info("")
-        log.info(
-            "************ Data Agent Service Gracefully Finished ********************"
-        )
+        if self._connection_manager:
+            log.info(
+                "************ Starting Agent Termination *************************"
+            )
+            self._connection_manager.close()
+            self._config = None
+            self._broker_conn = None
+            self._connection_manager = None
+            self._exchanger = None
+            self._safe_manipulator = None
+            self._scheduler = None
+            log.info("")
+            log.info(
+                "************ Data Agent Service Gracefully Finished ********************"
+            )
+
+    def __enter__(self):
+        try:
+            self.open()
+        except Exception as ex:
+            self.close()
+            raise ex
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
