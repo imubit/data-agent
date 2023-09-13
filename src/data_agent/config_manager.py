@@ -47,7 +47,6 @@ def init_configuration(is_service, loop=None, parser=None):
 
     # args = parser.parse_args()
     args, unknown_args = parser.parse_known_args()
-    print(args)
     exec_dir = pathlib.Path(sys.executable).parent.resolve()
     exec_name = os.path.basename(sys.executable)
 
