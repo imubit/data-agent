@@ -17,21 +17,17 @@ The package provides a unified data access API having several usage scenarios:
 pip install data-agent
 ```
 
+Install the plugins required for communicating with the target systems
+
 ## Python Package Usage
 
 ```python
 from data_agent.local_agent import LocalAgent
 
-agent = LocalAgent()
-agent.init(is_service=False)
+with LocalAgent() as agent:
 
-agent.api.list_supported_connectors()
-
-agent.api.create_connection(...)
-
-
-agent.close()
-
+    agent.api.list_supported_connectors()
+    agent.api.create_connection(...)
 ```
 
 
