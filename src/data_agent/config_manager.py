@@ -8,13 +8,9 @@ import sys
 
 import aiodebug.log_slow_callbacks
 
-# import aiodebug.hang_inspection
 from . import dist_name
 from .config_persist import PersistConfig
 from .config_template import config_template
-
-# import confuse
-
 
 log = logging.getLogger(__name__)
 

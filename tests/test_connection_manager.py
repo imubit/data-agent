@@ -11,9 +11,9 @@ from data_agent.exceptions import (
     UnrecognizedConnectionType,
 )
 
-# def test_list_supported_connectors(connection_manager):
-#     types = connection_manager.list_supported_connectors()
-#     assert "fake" in types
+
+def test_list_supported_connectors(connection_manager):
+    assert connection_manager.list_supported_connectors() == {}
 
 
 def test_target_info(connection_manager):

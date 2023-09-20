@@ -47,7 +47,7 @@ class DAQScheduler(AsyncIOScheduler):
 
     async def _job_func(self, job_id, conn, broker, tags, from_cache, refresh_rate_ms):
         try:
-            # Reconnect to OPC if needed
+            # Reconnect if needed
             if not conn.connected:
                 log.info("Reconnecting to Target Server...")
                 conn.connect()
@@ -60,21 +60,21 @@ class DAQScheduler(AsyncIOScheduler):
                     refresh_rate_ms=refresh_rate_ms,
                 )
 
-            # Read OPC data
+            # Read data
             start_time = time.time()
-            opc_data = conn.read_group_values(
+            group_values = conn.read_group_values(
                 self._group_id(job_id), from_cache=from_cache
             )
-            # opc_data = conn.read_tag_values(tags)
+            # group_values = conn.read_tag_values(tags)
             read_time = time.time() - start_time
 
             msg = {
                 "job_id": job_id,
                 "sample_id": self._job_state[job_id]["iter_counter"],
-                "data": opc_data,
+                "data": group_values,
             }
 
-            to_publish = [f'{t}={opc_data[t]["Value"]}' for t in opc_data]
+            to_publish = [f'{t}={group_values[t]["Value"]}' for t in group_values]
             self._total_iterations_counter += 1
             self._job_state[job_id]["iter_counter"] += 1
             log.debug(
@@ -189,7 +189,6 @@ class DAQScheduler(AsyncIOScheduler):
             replace_existing=True,
             args=[job_id, conn, self._broker_conn, tags, from_cache, refresh_rate_ms],
         )
-        # kargs={'job_id':job_id, 'opc':opc, 'broker':self._broker_conn, 'tags':tags})
 
         self._job_state[job_id] = {"iter_counter": 0}
 

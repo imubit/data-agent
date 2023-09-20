@@ -103,7 +103,7 @@ class ConnectionManager:
                 "category": entry.load().CATEGORY,
                 "connection_fields": entry.load().list_connection_fields(),
             }
-            for entry in entry_points()["data_agent.connectors"]
+            for entry in entry_points().get("data_agent.connectors", [])
         }
 
     def target_info(self, target_host, conn_type):

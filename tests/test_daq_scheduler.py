@@ -47,7 +47,7 @@ async def test_job_lifecycle(config_setup, mock_channel, connection_manager):
 
     connection_manager.create_connection(conn_name, conn_type="fake", enabled=True)
 
-    opc_conn = connection_manager.connection(conn_name)
+    conn = connection_manager.connection(conn_name)
 
     # Mock (simulation objects)
     mock_queue = await mock_channel.declare_queue("testing", auto_delete=True)
@@ -113,7 +113,7 @@ async def test_job_lifecycle(config_setup, mock_channel, connection_manager):
 
     # Cleanup
     await mock_queue.unbind(DATA_EXCHANGE_NAME, "")
-    opc_conn.disconnect()
+    conn.disconnect()
     connection_manager.delete_connection(conn_name)
 
     await broker.close()
@@ -153,7 +153,7 @@ async def test_job_persistence(config_setup, mock_channel):
 
     connection_manager.create_connection(conn_name, conn_type="fake", enabled=True)
 
-    opc_conn = connection_manager.connection(conn_name)
+    conn = connection_manager.connection(conn_name)
 
     # Mock (simulation objects)
     mock_queue = await mock_channel.declare_queue("testing", auto_delete=True)
@@ -223,7 +223,7 @@ async def test_job_persistence(config_setup, mock_channel):
 
     # Cleanup
     await mock_queue.unbind(DATA_EXCHANGE_NAME, "")
-    opc_conn.disconnect()
+    conn.disconnect()
     connection_manager.delete_connection(conn_name)
 
     await broker.close()
@@ -256,7 +256,7 @@ async def test_job_reconnect2(config_setup, mock_channel, connection_manager):
 
     connection_manager.create_connection(conn_name, conn_type="fake", enabled=True)
 
-    opc_conn = connection_manager.connection(conn_name)
+    conn = connection_manager.connection(conn_name)
 
     # Mock (simulation objects)
     mock_queue = await mock_channel.declare_queue("testing", auto_delete=True)
@@ -321,11 +321,11 @@ async def test_job_reconnect2(config_setup, mock_channel, connection_manager):
         )
 
     # Check that connection was enabled by daq_schedule
-    assert opc_conn.connected
+    assert conn.connected
 
     # Cleanup
     await mock_queue.unbind(DATA_EXCHANGE_NAME, "")
-    opc_conn.disconnect()
+    conn.disconnect()
     connection_manager.delete_connection(conn_name)
 
     await broker.close()

@@ -2,8 +2,8 @@ import random
 
 import pytest
 
-from data_agent.connector_exceptions import ErrorAddingTagsToGroup
 from data_agent.connectors.fake_connector import FakeConnector
+from data_agent.exceptions import ErrorAddingTagsToGroup
 
 
 def test_sanity():

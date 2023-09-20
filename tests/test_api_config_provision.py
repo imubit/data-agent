@@ -22,7 +22,7 @@ async def test_job_create_modify(rpc_client, rpc_server, data_queue):
         }
     }
 
-    # Create OPC connection
+    # Create connection
     await rpc_client.proxy.create_connection(
         conn_name=conn_name, conn_type="fake", enabled=True
     )

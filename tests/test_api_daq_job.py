@@ -16,7 +16,7 @@ async def test_job_create_modify(rpc_client, rpc_server, data_queue):
     tags1 = ["Random.Real8", "Random.String"]
     tags2 = ["Static.Int4"]
 
-    # Create OPC connection
+    # Create connection
     await rpc_client.proxy.create_connection(
         conn_name=conn_name, conn_type="fake", enabled=True
     )
