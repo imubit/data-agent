@@ -1,4 +1,6 @@
 [![PyPI-Server](https://img.shields.io/pypi/v/data-agent.svg)](https://pypi.org/project/data-agent/)
+[![Coveralls](https://img.shields.io/coveralls/github/imubit/data-agent/main.svg)](https://coveralls.io/r/imubit/data-agent)
+
 
 
 # Data Agent
