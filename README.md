@@ -6,6 +6,8 @@
 Python package for accessing real-time and historical data on industrial historians and control systems.
 Different historian protocols and APIs are implemented through standalone plugins.
 
+*THIS PACKAGE IS USELESS WITHOUT EXTERNAL PLUGINS IMPLEMENTING TARGET SYSTEM CUSTOM DATA ACCESS PROTOCOLS*
+
 ## Description
 
 The package provides a unified data access API having several usage scenarios:

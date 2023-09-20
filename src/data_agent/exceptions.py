@@ -74,9 +74,5 @@ class SafetyErrorManipulateOutsideOfRateBound(Exception):
     pass
 
 
-class CannotAutodetectOpcUaNamespace(Exception):
-    pass
-
-
 class DaqJobAlreadyExists(Exception):
     pass

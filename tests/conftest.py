@@ -1,11 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-    Dummy conftest.py for imubit_opcda_agent.
-
-    If you don't know what this is for, just leave it empty.
-    Read more about conftest.py under:
-    https://pytest.org/latest/plugins.html
-"""
 import asyncio
 import os
 import sys
@@ -38,13 +31,6 @@ RPC_EXCHANGE_NAME = os.environ.get(
 )
 DATA_EXCHANGE_NAME = os.environ.get("DATA_EXCHANGE_NAME", f"{SERVICE_DOMAIN}.daq.data")
 
-# @pytest.fixture(scope="function", autouse=True)
-# def config_setup(request):
-#     config = PersistConfig(dist_name, f'data_agent.{sys.platform}')
-#     config.clear()
-#     config.read(user=False)
-#     config['service']['id'] = SERVICE_ID
-
 
 @pytest.fixture
 def config_setup(request):
@@ -53,11 +39,6 @@ def config_setup(request):
     config.read(user=False)
     config["service"]["id"] = SERVICE_ID
     yield config
-
-    # def config_resource_fin():
-    #     print('\nConfig resource fin')
-    #
-    # request.addfinalizer(config_resource_fin)
 
 
 @pytest.fixture
