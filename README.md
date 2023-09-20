@@ -1,3 +1,6 @@
+[![PyPI-Server](https://img.shields.io/pypi/v/data-agent.svg)](https://pypi.org/project/data-agent/)
+
+
 # Data Agent
 
 Python package for accessing real-time and historical data on industrial historians and control systems.

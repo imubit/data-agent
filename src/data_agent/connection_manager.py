@@ -94,7 +94,7 @@ class ConnectionManager:
 
     @staticmethod
     def list_plugins():
-        return entry_points()["data_agent.connectors"]
+        return entry_points().get("data_agent.connectors", [])
 
     @staticmethod
     def list_supported_connectors():
