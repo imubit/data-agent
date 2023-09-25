@@ -169,6 +169,11 @@ config_template = {
                 "level": str,
                 "propagate": bool,
             },
+            "data_agent.cli_main": {
+                "handlers": confuse.StrSeq(),
+                "level": str,
+                "propagate": bool,
+            },
             "data_agent.agent": {
                 "handlers": confuse.StrSeq(),
                 "level": str,

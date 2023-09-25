@@ -122,6 +122,8 @@ def exec_command(parser, enable_persistance=True):
 
 def run():
     parser = argparse.ArgumentParser(description="Data Agent CLI")
+    subparsers = parser.add_subparsers(dest="instruction", help="Execute API call")
+    subparsers.add_parser("exec")
 
     known_args, unknown = parser.parse_known_args()
 

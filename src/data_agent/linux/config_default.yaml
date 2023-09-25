@@ -133,6 +133,11 @@ log: # standard logging dictConfig
       level: 'DEBUG'
       propagate: False
 
+    data_agent.cli_main:
+      handlers: ['console', 'amqp']
+      level: 'DEBUG'
+      propagate: False
+
     data_agent.agent:
       handlers: ['console', 'amqp']
       level: 'DEBUG'

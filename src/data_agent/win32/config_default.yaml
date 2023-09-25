@@ -144,6 +144,12 @@ log: # standard logging dictConfig
       level: 'DEBUG'
       propagate: False
 
+    data_agent.cli_main:
+#      handlers: ['console', 'ntevent', 'file', 'err_file', 'amqp']
+      handlers: ['console', 'ntevent', 'file', 'err_file']
+      level: 'DEBUG'
+      propagate: False
+
     data_agent.agent:
 #      handlers: ['console', 'ntevent', 'file', 'err_file', 'amqp']
       handlers: ['console', 'ntevent', 'file', 'err_file']
