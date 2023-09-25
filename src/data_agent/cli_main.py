@@ -5,8 +5,6 @@ import pprint
 import time
 import traceback
 
-import six
-
 from data_agent import __version__
 from data_agent.api import ServiceApi
 from data_agent.config_manager import PersistentComponent, init_configuration
@@ -34,7 +32,7 @@ def build_kwargs(args):
 
     # Convert types
     for k in ret:
-        if not isinstance(ret[k], six.string_types):
+        if not isinstance(ret[k], str):
             continue
 
         try:
