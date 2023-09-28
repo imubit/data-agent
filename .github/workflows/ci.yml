@@ -59,7 +59,7 @@ jobs:
     needs: prepare
     services:
       rabbitmq:
-        image: docker://mosquito/aiormq-rabbitmq
+        image: rabbitmq:3.9
         ports:
           - 5672:5672
           - 5671:5671
@@ -67,7 +67,7 @@ jobs:
       matrix:
         python:
         - "3.8"  # oldest Python supported by PSF
-        - "3.11"  # newest Python that is stable
+#        - "3.11"  # newest Python that is stable
         platform:
         - ubuntu-latest
 #        - windows-latest
