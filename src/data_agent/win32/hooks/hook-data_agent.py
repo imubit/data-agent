@@ -21,7 +21,7 @@ hiddenimports = collect_submodules("data_agent")
 installed_connectors = [
     pkg.key.replace("-", "_")
     for pkg in pkg_resources.working_set
-    if pkg.key.startswith("connector")
+    if pkg.key.startswith("data-agent-")
 ]
 for connector in installed_connectors:
     log.info(f"Including Data Agent connector: {connector}")
