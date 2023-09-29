@@ -1,4 +1,5 @@
 import logging
+import sys
 from importlib.metadata import entry_points
 
 from .exceptions import (
@@ -94,7 +95,10 @@ class ConnectionManager:
 
     @staticmethod
     def list_plugins():
-        return entry_points().get("data_agent.connectors", [])
+        if sys.version_info[:3] < (3, 10):
+            return entry_points().get("data_agent.connectors", [])
+
+        return entry_points(group="data_agent.connectors")
 
     @staticmethod
     def list_supported_connectors():
@@ -103,7 +107,7 @@ class ConnectionManager:
                 "category": entry.load().CATEGORY,
                 "connection_fields": entry.load().list_connection_fields(),
             }
-            for entry in entry_points().get("data_agent.connectors", [])
+            for entry in ConnectionManager.list_plugins()
         }
 
     def target_info(self, target_host, conn_type):

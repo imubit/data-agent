@@ -22,7 +22,7 @@ from data_agent.daq_scheduler import create_daq_scheduler
 from data_agent.exchanger import DataExchanger
 from data_agent.safe_manipulator import SafeManipulator
 
-AMQP_URL = os.environ.get("BROKER_URL", "amqp://guest:guest@127.0.0.1/")
+AMQP_URL = os.environ.get("BROKER_URL", "amqp://guest:guest@localhost/")
 SERVICE_ID = os.environ.get("SERVICE_ID", "test-agent")
 SERVICE_TYPE = os.environ.get("SERVICE_TYPE", "no-type")
 SERVICE_DOMAIN = os.environ.get("SERVICE_DOMAIN", "some-domain")
@@ -77,13 +77,6 @@ def data_exchanger(connection_manager):
         connection_manager,
     )
     yield data_exchanger
-
-
-@pytest.fixture
-def event_loop():
-    loop = asyncio.get_event_loop()
-    yield loop
-    loop.close()
 
 
 @pytest.fixture
