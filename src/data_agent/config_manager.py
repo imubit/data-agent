@@ -68,9 +68,10 @@ def init_configuration(is_service, loop=None, parser=None):
 
     # Configure log file path
     logs_dir = None
-    if exec_name.lower() == "pythonservice.exe" or not os.access(
-        exec_dir, os.W_OK
-    ):  # We are running as a service, but not as a standalone executable
+    # We are running as a service, but not as a standalone executable
+    if exec_name.lower() == "pythonservice.exe" or str(exec_dir).lower().startswith(
+        os.getenv("ProgramFiles").lower()
+    ):
         logs_dir = str(os.path.join(os.getenv("SystemDrive"), "\\data-agent\\logs\\"))
     elif is_service:  # Standalone executable service
         logs_dir = str(exec_dir.joinpath("logs"))
