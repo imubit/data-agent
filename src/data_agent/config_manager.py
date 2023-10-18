@@ -68,9 +68,12 @@ def init_configuration(is_service, loop=None, parser=None):
 
     # Configure log file path
     logs_dir = None
+
     # We are running as a service, but not as a standalone executable
-    if exec_name.lower() == "pythonservice.exe" or str(exec_dir).lower().startswith(
-        os.getenv("ProgramFiles").lower()
+    if (
+        sys.platform == "win32"
+        and exec_name.lower() == "pythonservice.exe"
+        or str(exec_dir).lower().startswith(os.getenv("ProgramFiles").lower())
     ):
         logs_dir = str(os.path.join(os.getenv("SystemDrive"), "\\data-agent\\logs\\"))
     elif is_service:  # Standalone executable service
@@ -81,13 +84,17 @@ def init_configuration(is_service, loop=None, parser=None):
         if not os.path.exists(logs_dir):
             os.makedirs(logs_dir)
 
-        log_file_path = str(
+        handlers = config["log"]["handlers"].get()
+        handlers["file"]["filename"] = str(
             os.path.join(
                 logs_dir, config["log"]["handlers"]["file"]["filename"].get(str)
             )
         )
-        handlers = config["log"]["handlers"].get()
-        handlers["file"]["filename"] = log_file_path
+        handlers["err_file"]["filename"] = str(
+            os.path.join(
+                logs_dir, config["log"]["handlers"]["err_file"]["filename"].get(str)
+            )
+        )
         config["log"]["handlers"] = handlers
 
     # Validate configuration
