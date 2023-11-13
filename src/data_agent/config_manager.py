@@ -44,7 +44,6 @@ def init_configuration(is_service, loop=None, parser=None):
     # args = parser.parse_args()
     args, unknown_args = parser.parse_known_args()
     exec_dir = pathlib.Path(sys.executable).parent.resolve()
-    exec_name = os.path.basename(sys.executable)
 
     if is_service:
         # Used internally by confuse package
@@ -67,35 +66,22 @@ def init_configuration(is_service, loop=None, parser=None):
     log.debug("Logging level is {}".format(config["log"]["level"].get(int)))
 
     # Configure log file path
-    logs_dir = None
+    logs_dir = str(os.path.join(config.config_dir(), "logs"))
 
-    # We are running as a service, but not as a standalone executable
-    if (
-        sys.platform == "win32"
-        and exec_name.lower() == "pythonservice.exe"
-        or str(exec_dir).lower().startswith(os.getenv("ProgramFiles").lower())
-    ):
-        logs_dir = str(os.path.join(os.getenv("SystemDrive"), "\\data-agent\\logs\\"))
-    elif is_service:  # Standalone executable service
-        logs_dir = str(exec_dir.joinpath("logs"))
+    # Create path if not exists
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
 
-    if logs_dir:
-        # Create path if not exists
-        if not os.path.exists(logs_dir):
-            os.makedirs(logs_dir)
-
-        handlers = config["log"]["handlers"].get()
-        handlers["file"]["filename"] = str(
-            os.path.join(
-                logs_dir, config["log"]["handlers"]["file"]["filename"].get(str)
-            )
+    handlers = config["log"]["handlers"].get()
+    handlers["file"]["filename"] = str(
+        os.path.join(logs_dir, config["log"]["handlers"]["file"]["filename"].get(str))
+    )
+    handlers["err_file"]["filename"] = str(
+        os.path.join(
+            logs_dir, config["log"]["handlers"]["err_file"]["filename"].get(str)
         )
-        handlers["err_file"]["filename"] = str(
-            os.path.join(
-                logs_dir, config["log"]["handlers"]["err_file"]["filename"].get(str)
-            )
-        )
-        config["log"]["handlers"] = handlers
+    )
+    config["log"]["handlers"] = handlers
 
     # Validate configuration
     valid = config.get(config_template)
