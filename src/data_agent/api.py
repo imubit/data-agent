@@ -201,6 +201,7 @@ class ServiceApi(AbstractServiceApi):
         first_timestamp=None,
         last_timestamp=None,
         time_frequency=None,
+        max_results=None,
         result_format="dataframe",
         progress_callback=None,
     ):
@@ -215,6 +216,7 @@ class ServiceApi(AbstractServiceApi):
             first_timestamp=first_timestamp,
             last_timestamp=last_timestamp,
             time_frequency=time_frequency,
+            max_results=max_results,
             result_format=result_format,
             progress_callback=progress_callback,
         )

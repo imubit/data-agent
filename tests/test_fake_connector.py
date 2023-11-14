@@ -67,6 +67,15 @@ def test_read_tag_values(fake_conn):
     assert res["Random.String"]["Value"] in "We are going to win this race.".split(" ")
 
 
+async def test_read_period(fake_conn):
+    tag1 = "Static.Float"
+
+    # Create connection
+    df = fake_conn.read_tag_values_period(tags=[tag1], max_results=20)
+    assert df.size == 20
+    assert df.columns == [tag1]
+
+
 def test_group_read(fake_conn):
     group_name = "group1"
     tags = ["Static.Float", "Static.Int4"]

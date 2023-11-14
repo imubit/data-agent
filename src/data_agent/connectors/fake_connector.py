@@ -2,9 +2,14 @@ import random
 from datetime import datetime
 from typing import Union
 
+import numpy as np
+import pandas as pd
+
 from data_agent.abstract_connector import SupportedOperation, active_connection
 from data_agent.exceptions import ErrorAddingTagsToGroup
 from data_agent.groups_aware_connector import GroupsAwareConnector
+
+np.random.seed(1)
 
 
 def _get_from_dict(dataDict, mapList):
@@ -163,10 +168,24 @@ class FakeConnector(GroupsAwareConnector):
         first_timestamp=None,
         last_timestamp=None,
         time_frequency=None,
+        max_results=None,
         result_format="dataframe",
         progress_callback=None,
     ):
-        pass
+        # Check if in path
+        for tag in tags:
+            path_list = tag.split(".")
+            _get_from_dict(self._tags, path_list)
+
+        self._update_random()
+        cols = len(tags)
+        rows = max_results if max_results else 100
+        first_timestamp = first_timestamp or "2019-01-01"
+        data = np.random.rand(rows, cols)
+        tidx = pd.date_range(first_timestamp, periods=rows, freq="MS")
+        df = pd.DataFrame(data, columns=tags, index=tidx)
+        df.index.name = "timestamp"
+        return df
 
     @active_connection
     def write_tag_values(self, tags: dict, wait_for_result: bool = True, **kwargs):
