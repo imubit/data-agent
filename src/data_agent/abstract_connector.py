@@ -20,6 +20,16 @@ class SupportedOperation:
     DELETE_TAG = 10
 
 
+STANDARD_ATTRIBUTES = {
+    "Name": {"Type": "str", "Name": "Tag Name"},
+    "Type": {"Type": "str", "Name": "Data Type"},
+    "EngUnits": {"Type": "str", "Name": "Eng. Units"},
+    "Path": {"Type": "str", "Name": "Tag Path"},
+    "Description": {"Type": "str", "Name": "Description"},
+    "HasChildren": {"Type": "str", "Name": "HasChildren"},
+}
+
+
 def active_connection(func):
     @wraps(func)
     def inner(self, *args, **kwargs):
