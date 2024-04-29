@@ -81,7 +81,7 @@ class LocalAgent:
             "************ Data Agent Service Initialized *************************"
         )
         log.info(
-            f" Supported connectors: {self._connection_manager.list_supported_connectors().keys()}"
+            f" Supported connectors: {list(self._connection_manager.list_supported_connectors().keys())}"
         )
         log.info(
             "***********************************************************************"

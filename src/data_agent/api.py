@@ -49,14 +49,14 @@ class ServiceApi(AbstractServiceApi):
         return self._connection_manager.list_supported_connectors()
 
     @traceapi
-    def target_info(self, target_host: str, conn_type: str):
+    def target_info(self, target_ref: str, conn_type: str):
         """Retrieve information about target host (including endpoint enumeration if availailble)
 
-        :param target_host:
+        :param target_ref:
         :param conn_type:
         :return:
         """
-        return self._connection_manager.target_info(target_host, conn_type)
+        return self._connection_manager.target_info(target_ref, conn_type)
 
     @traceapi
     def list_connections(self):
