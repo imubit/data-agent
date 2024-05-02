@@ -82,10 +82,15 @@ class ConnectionManager:
         self.close()
 
     def close(self):
+        if not self._connector_classes:
+            return
+
         # Remove connections, but not from persistance
         existing_connections = list(self._connections_map.keys())
         for conn in existing_connections:
             self._delete_connection(conn)
+
+        self._connector_classes = None
         log.info("ConnectionManager terminated successfully.")
 
     def reset(self):
