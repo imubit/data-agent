@@ -102,16 +102,21 @@ class ConnectionManager:
 
     @staticmethod
     def list_supported_connectors():
-        return {
-            entry.name: {
-                "category": entry.load().CATEGORY,
-                "connection_fields": entry.load().list_connection_fields(),
-            }
-            for entry in ConnectionManager.list_plugins()
+        entries = {
+            entry.name: entry.load() for entry in ConnectionManager.list_plugins()
         }
 
-    def target_info(self, target_host, conn_type):
-        return self._connector_classes[conn_type].target_info(target_host)
+        return {
+            entry: {
+                "category": entries[entry].CATEGORY,
+                "connection_fields": entries[entry].list_connection_fields(),
+            }
+            for entry in entries
+            if entries[entry].plugin_supported()
+        }
+
+    def target_info(self, target_ref, conn_type):
+        return self._connector_classes[conn_type].target_info(target_ref)
 
     def list_connections(self, include_details=True):
         if not include_details:

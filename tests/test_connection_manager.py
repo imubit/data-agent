@@ -17,7 +17,7 @@ def test_list_supported_connectors(connection_manager):
 
 
 def test_target_info(connection_manager):
-    info = connection_manager.target_info(target_host="localhost", conn_type="fake")
+    info = connection_manager.target_info(target_ref="localhost", conn_type="fake")
     assert info == {"Name": "absolute-fake", "Endpoints": []}
 
 

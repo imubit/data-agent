@@ -33,6 +33,18 @@ class FakeConnector(GroupsAwareConnector):
         ("tag", {"Type": "str", "Name": "Tag Name"}),
     ]
 
+    @staticmethod
+    def supported():
+        return True
+
+    @staticmethod
+    def list_connection_fields():
+        return {}
+
+    @staticmethod
+    def target_info(_):
+        return {"Name": "absolute-fake", "Endpoints": []}
+
     def __init__(self, conn_name="fake_client", **kwargs):
         super(FakeConnector, self).__init__(conn_name)
         self._connected = False
@@ -67,10 +79,6 @@ class FakeConnector(GroupsAwareConnector):
             },
         }
 
-    @staticmethod
-    def list_connection_fields():
-        return {}
-
     def _update_random(self):
         self._tags["Random"]["Real8"]["Value"] = random.random() * 1000
         self._tags["Random"]["Real8"]["Timestamp"] = str(datetime.utcnow())
@@ -78,10 +86,6 @@ class FakeConnector(GroupsAwareConnector):
             "We are going to win this race.".split(" ")
         )
         self._tags["Random"]["String"]["Timestamp"] = str(datetime.utcnow())
-
-    @staticmethod
-    def target_info(_):
-        return {"Name": "absolute-fake", "Endpoints": []}
 
     @property
     def connected(self):

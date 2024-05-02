@@ -56,6 +56,19 @@ class AbstractConnector(ABC):
     TYPE = "abstract_connector"
     _name = ""
 
+    @staticmethod
+    def plugin_supported():
+        return False
+
+    @staticmethod
+    def list_connection_fields():
+        return {}
+
+    @staticmethod
+    @abstractmethod
+    def target_info(target_ref):
+        return {}
+
     def __init__(self, conn_name):
         self._name = conn_name
 
@@ -66,10 +79,6 @@ class AbstractConnector(ABC):
     @property
     def name(self):
         return self._name
-
-    @staticmethod
-    def target_info(target_host):
-        return {}
 
     @property
     @abstractmethod

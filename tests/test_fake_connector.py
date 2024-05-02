@@ -10,6 +10,7 @@ def test_sanity():
     conn = FakeConnector()
     conn.connect()
 
+    assert conn.supported()
     assert conn.TYPE == "fake"
     assert conn.name == "fake_client"
 
