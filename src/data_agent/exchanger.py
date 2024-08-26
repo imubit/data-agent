@@ -81,7 +81,9 @@ class DataExchanger:
                     # If dest group is empty - we copy each tag to it's own group
                     self._connection_manager.connection(
                         dest_conn
-                    ).write_group_values_period(tag, df[tag], on_conflict=on_conflict)
+                    ).write_group_values_period(
+                        df.columns[0], df, on_conflict=on_conflict
+                    )
 
     def copy_attributes(
         self,
