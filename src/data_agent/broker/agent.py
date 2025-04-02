@@ -108,7 +108,7 @@ class BrokerAgent:
             "************ Data Agent Service Initialized *************************"
         )
         log.info(
-            f" Supported connectors: {self._connection_manager.list_supported_connectors()}"
+            f" Supported connectors: {list(self._connection_manager.list_supported_connectors().keys())}"
         )
         log.info(
             "***********************************************************************"

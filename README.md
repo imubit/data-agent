@@ -40,6 +40,7 @@ with LocalAgent() as agent:
 
 ## Command Line Usage
 
+Start broker based agent
 ```bash
-dagent --service.id my_service --broker.uri amqp://guest:guest@192.168.4.23/
+da-broker-svc --service.id my_service --broker.uri amqp://guest:guest@192.168.4.23/
 ```

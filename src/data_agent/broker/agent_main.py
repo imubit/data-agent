@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from data_agent.broker_agent import BrokerAgent
+from data_agent.broker.agent import BrokerAgent
 
 log = logging.getLogger(__name__)
 

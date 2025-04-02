@@ -4,7 +4,7 @@ import sys
 import servicemanager
 import win32serviceutil
 
-from data_agent.broker_agent import BrokerAgent
+from data_agent.broker.agent import BrokerAgent
 from data_agent.connection_manager import ConnectionManager
 from data_agent.win32.win_service import SMWinservice
 
