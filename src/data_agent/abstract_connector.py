@@ -129,25 +129,3 @@ class AbstractConnector(ABC):
     @abstractmethod
     def write_tag_values(self, tags: dict, wait_for_result: bool, **kwargs) -> dict:
         pass
-
-    # @abstractmethod
-    # def list_groups(self) -> list:
-    #     pass
-    #
-    # @abstractmethod
-    # def register_group(self, group_name: str, tags: list, refresh_rate_ms: int = 1000):
-    #     pass
-    #
-    # @abstractmethod
-    # def unregister_group(self, group_name: str):
-    #     pass
-    #
-    # @abstractmethod
-    # def read_group_values(self, group_name: str, from_cache: bool = True) -> dict:
-    #     pass
-    #
-    # @abstractmethod
-    # def write_group_values(
-    #     self, group_name: str, tags: dict, wait_for_result: bool, **kwargs
-    # ) -> dict:
-    #     pass
