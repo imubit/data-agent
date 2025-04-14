@@ -1,5 +1,5 @@
+import datetime as dt
 import random
-from datetime import datetime
 from typing import Union
 
 import numpy as np
@@ -81,11 +81,11 @@ class FakeConnector(GroupsAwareConnector):
 
     def _update_random(self):
         self._tags["Random"]["Real8"]["Value"] = random.random() * 1000
-        self._tags["Random"]["Real8"]["Timestamp"] = str(datetime.utcnow())
+        self._tags["Random"]["Real8"]["Timestamp"] = str(dt.datetime.now(dt.UTC))
         self._tags["Random"]["String"]["Value"] = random.choice(
             "We are going to win this race.".split(" ")
         )
-        self._tags["Random"]["String"]["Timestamp"] = str(datetime.utcnow())
+        self._tags["Random"]["String"]["Timestamp"] = str(dt.datetime.now(dt.UTC))
 
     @property
     def connected(self):

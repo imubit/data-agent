@@ -121,14 +121,19 @@ def exec_command(parser, enable_persistance=True):
 
 
 def run():
-    parser = argparse.ArgumentParser(description="Data Agent CLI")
+    parser = argparse.ArgumentParser(
+        description="Local Data Agent CLI."
+        "This tool is not connecting to any broker or "
+        "external clients. It is used to execute API calls directly "
+        "from the command lineda"
+    )
     subparsers = parser.add_subparsers(dest="instruction", help="Execute API call")
     subparsers.add_parser("exec")
 
     known_args, unknown = parser.parse_known_args()
 
     log.info(
-        f'***** Data Agent CLI: Instruction: "{known_args.instruction}", Ver: { __version__} ******'
+        f'***** Local CLI: Instruction: "{known_args.instruction}", Ver: {__version__} ******'
     )
 
     if known_args.instruction == "exec":

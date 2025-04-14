@@ -30,15 +30,20 @@ class DAQScheduler(AsyncIOScheduler):
 
         # Recreate jobs from config
         jobs = self._persistence.list_items()
+
         for job_id in jobs:
             log.debug(f'Starting preconfigured job "{job_id}"...')
-            self._create_scan_job(
-                job_id=job_id,
-                conn_name=jobs[job_id]["conn_name"],
-                tags=jobs[job_id]["tags"],
-                seconds=jobs[job_id]["seconds"],
-                from_cache=jobs[job_id]["from_cache"],
-            )
+
+            try:
+                self._create_scan_job(
+                    job_id=job_id,
+                    conn_name=jobs[job_id]["conn_name"],
+                    tags=jobs[job_id]["tags"],
+                    seconds=jobs[job_id]["seconds"],
+                    from_cache=jobs[job_id]["from_cache"],
+                )
+            except Exception as e:
+                log.exception(f'Error starting job - "{job_id}" - {e}')
 
     def reset(self, persist=False):
         jobs = self.list_jobs()
@@ -49,32 +54,38 @@ class DAQScheduler(AsyncIOScheduler):
         try:
             # Reconnect if needed
             if not conn.connected:
-                log.info("Reconnecting to Target Server...")
+                log.info(f"Reconnecting to '{conn.name}' {conn.TYPE}  Server...")
                 conn.connect()
+                log.info(conn.connection_info())
 
-            if not self._group_id(job_id) in conn.list_groups():
-                log.info(f"Re-registering group {self._group_id(job_id)}...")
-                conn.register_group(
-                    group_name=self._group_id(job_id),
-                    tags=tags,
-                    refresh_rate_ms=refresh_rate_ms,
-                )
+            # if not self._group_id(job_id) in conn.list_groups():
+            #     log.info(f"Re-registering group {self._group_id(job_id)}...")
+            #     conn.register_group(
+            #         group_name=self._group_id(job_id),
+            #         tags=tags,
+            #         refresh_rate_ms=refresh_rate_ms,
+            #     )
 
             # Read data
             start_time = time.time()
-            group_values = conn.read_group_values(
-                self._group_id(job_id), from_cache=from_cache
-            )
-            # group_values = conn.read_tag_values(tags)
+            # tag_values = conn.read_group_values(
+            #     self._group_id(job_id), from_cache=from_cache
+            # )
+            tag_values = conn.read_tag_values(tags)
+            if not tag_values:
+                log.warning(f"No data read for job '{job_id}'!")
+                return
+
             read_time = time.time() - start_time
 
             msg = {
                 "job_id": job_id,
                 "sample_id": self._job_state[job_id]["iter_counter"],
-                "data": group_values,
+                "data": tag_values,
             }
 
-            to_publish = [f'{t}={group_values[t]["Value"]}' for t in group_values]
+            # Publish
+            to_publish = [f'{t}={tag_values[t]["Value"]}' for t in tag_values]
             self._total_iterations_counter += 1
             self._job_state[job_id]["iter_counter"] += 1
             log.debug(
@@ -168,15 +179,16 @@ class DAQScheduler(AsyncIOScheduler):
 
     def _create_scan_job(self, job_id, conn_name, tags, seconds, from_cache):
         refresh_rate_ms = seconds * 1000
+
         conn = self._connection_manager.connection(conn_name, check_enabled=False)
 
-        if conn.connected:
-            conn.register_group(
-                group_name=self._group_id(job_id),
-                tags=tags,
-                refresh_rate_ms=refresh_rate_ms,
-            )
-
+        # if conn.connected:
+        #     conn.register_group(
+        #         group_name=self._group_id(job_id),
+        #         tags=tags,
+        #         refresh_rate_ms=refresh_rate_ms,
+        #     )
+        #
         trigger = interval.IntervalTrigger(seconds=seconds)
 
         job = self.add_job(
@@ -199,13 +211,13 @@ class DAQScheduler(AsyncIOScheduler):
             job_id = [job_id]
 
         for j in job_id:
-            job = self.get_job(j)
-            conn = job.args[1]
+            # job = self.get_job(j)
+            # conn = job.args[1]
 
             super().remove_job(j)
 
-            conn.unregister_group(self._group_id(j))
-
+            # conn.unregister_group(self._group_id(j))
+            #
             if persist:
                 self._persistence.remove_item(j)
 

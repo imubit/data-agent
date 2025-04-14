@@ -20,6 +20,7 @@ from data_agent.config_template import (
 )
 from data_agent.connection_manager import ConnectionManager
 from data_agent.daq_scheduler import create_daq_scheduler
+from data_agent.exchanger import DataExchanger
 from data_agent.safe_manipulator import SafeManipulator
 
 log = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ class BrokerAgent:
     _broker_conn = None
     _connection_manager = None
     _safe_manipulator = None
+    _data_exchanger = None
     _scheduler = None
 
     async def init(self, loop, is_service=False, enable_persistance=True):
@@ -92,8 +94,12 @@ class BrokerAgent:
                 enable_persistence=enable_persistance,
             ),
         )
+        self._data_exchanger = DataExchanger(self._connection_manager)
         api = ServiceApi(
-            self._scheduler, self._connection_manager, self._safe_manipulator
+            self._scheduler,
+            self._connection_manager,
+            self._data_exchanger,
+            self._safe_manipulator,
         )
         await self._broker_conn.rpc_register(api)
 
@@ -102,7 +108,7 @@ class BrokerAgent:
             "************ Data Agent Service Initialized *************************"
         )
         log.info(
-            f" Supported connectors: {self._connection_manager.list_supported_connectors()}"
+            f" Supported connectors: {list(self._connection_manager.list_supported_connectors().keys())}"
         )
         log.info(
             "***********************************************************************"
@@ -117,6 +123,7 @@ class BrokerAgent:
         self._broker_conn = None
         self._connection_manager = None
         self._safe_manipulator = None
+        self._data_exchanger = None
         self._scheduler = None
         log.info("")
         log.info(
