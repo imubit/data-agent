@@ -9,13 +9,15 @@ from .exceptions import DaqJobAlreadyExists
 
 log = logging.getLogger(__name__)
 
+DAQ_CONFIG_KEY = "daq_jobs"
+
 
 class DAQScheduler(AsyncIOScheduler):
     def __init__(
         self,
         broker_conn,
         connection_manager,
-        persistence,
+        config,
         is_convert_dot_to_slash=True,
         **options,
     ):
@@ -23,13 +25,13 @@ class DAQScheduler(AsyncIOScheduler):
         self._broker_conn = broker_conn
         self._connection_manager = connection_manager
         self._job_state = {}
-        self._persistence = persistence
+        self._config = config
         self._total_iterations_counter = 0
 
         super(DAQScheduler, self).__init__(gconfig={}, options=options)
 
         # Recreate jobs from config
-        jobs = self._persistence.list_items()
+        jobs = self._config.get(f"{DAQ_CONFIG_KEY}")
 
         for job_id in jobs:
             log.debug(f'Starting preconfigured job "{job_id}"...')
@@ -128,8 +130,8 @@ class DAQScheduler(AsyncIOScheduler):
             # Modify interval
             if timedelta(seconds=seconds) != job.trigger.interval:
                 job.reschedule(interval.IntervalTrigger(seconds=seconds))
-                self._persistence.add_item(
-                    job_id,
+                self._config.set(
+                    f"{DAQ_CONFIG_KEY}.{job_id}",
                     {
                         "conn_name": conn_name,
                         "tags": tags,
@@ -141,8 +143,8 @@ class DAQScheduler(AsyncIOScheduler):
             # Modify args
             if job.args[1].name != conn_name or job.args[3] != tags:
                 self._create_scan_job(job_id, conn_name, tags, seconds, from_cache)
-                self._persistence.add_item(
-                    job_id,
+                self._config.set(
+                    f"{DAQ_CONFIG_KEY}.{job_id}",
                     {
                         "conn_name": conn_name,
                         "tags": tags,
@@ -157,8 +159,8 @@ class DAQScheduler(AsyncIOScheduler):
 
         else:
             job = self._create_scan_job(job_id, conn_name, tags, seconds, from_cache)
-            self._persistence.add_item(
-                job_id,
+            self._config.set(
+                f"{DAQ_CONFIG_KEY}.{job_id}",
                 {
                     "conn_name": conn_name,
                     "tags": tags,
@@ -219,7 +221,7 @@ class DAQScheduler(AsyncIOScheduler):
             # conn.unregister_group(self._group_id(j))
             #
             if persist:
-                self._persistence.remove_item(j)
+                self._config.remove(f"{DAQ_CONFIG_KEY}.{j}")
 
     def list_tags(self, job_id):
         job = self.get_job(job_id)
@@ -239,12 +241,12 @@ class DAQScheduler(AsyncIOScheduler):
 
 
 def create_daq_scheduler(
-    broker, conn_manager, persistence, is_convert_dot_to_slash=True, **options
+    broker, conn_manager, config, is_convert_dot_to_slash=True, **options
 ):
     scheduler = DAQScheduler(
         broker,
         conn_manager,
-        persistence=persistence,
+        config=config,
         is_convert_dot_to_slash=is_convert_dot_to_slash,
         **options,
     )

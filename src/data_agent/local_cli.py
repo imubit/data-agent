@@ -7,11 +7,7 @@ import traceback
 
 from data_agent import __version__
 from data_agent.api import ServiceApi
-from data_agent.config_manager import PersistentComponent, init_configuration
-from data_agent.config_template import (
-    CONFIG_SECTION_CONNECTION_MANAGER,
-    CONFIG_SECTION_SAFE_MANIPULATOR,
-)
+from data_agent.config_manager import ConfigManager
 from data_agent.connection_manager import ConnectionManager
 from data_agent.exchanger import DataExchanger
 from data_agent.safe_manipulator import SafeManipulator
@@ -82,27 +78,10 @@ def print_formatted_result(api_func, command, kwargs):
         print("\n\r------------------------------------------------")
 
 
-def exec_command(parser, enable_persistance=True):
-    config, unknown_args = init_configuration(
-        is_service=False, loop=None, parser=parser
-    )
+def exec_command(config, cmd, kwargs):
+    connection_manager = ConnectionManager(config=config)
 
-    connection_manager = ConnectionManager(
-        PersistentComponent(
-            config,
-            CONFIG_SECTION_CONNECTION_MANAGER,
-            enable_persistence=enable_persistance,
-        )
-    )
-
-    safe_manipulator = SafeManipulator(
-        connection_manager,
-        PersistentComponent(
-            config,
-            CONFIG_SECTION_SAFE_MANIPULATOR,
-            enable_persistence=enable_persistance,
-        ),
-    )
+    safe_manipulator = SafeManipulator(connection_manager, config=config)
 
     exchanger = DataExchanger(connection_manager)
 
@@ -113,9 +92,7 @@ def exec_command(parser, enable_persistance=True):
         safe_manipulator=safe_manipulator,
     )
 
-    cmd = unknown_args[0]
     api_func = getattr(api, cmd)
-    kwargs = build_kwargs(unknown_args[1:])
 
     print_formatted_result(api_func, cmd, kwargs)
 
@@ -127,6 +104,9 @@ def run():
         "external clients. It is used to execute API calls directly "
         "from the command lineda"
     )
+
+    config = ConfigManager(loop=None, parser=parser, enable_persistence=True)
+
     subparsers = parser.add_subparsers(dest="instruction", help="Execute API call")
     subparsers.add_parser("exec")
 
@@ -137,7 +117,11 @@ def run():
     )
 
     if known_args.instruction == "exec":
-        exec_command(parser=parser)
+        exec_command(
+            config=config,
+            cmd=config.unknown_args[1],
+            kwargs=build_kwargs(config.unknown_args[2:]),
+        )
 
 
 if __name__ == "__main__":

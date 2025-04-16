@@ -1,8 +1,6 @@
 import pytest
-from conftest import CONFIG_SECTION_SAFE_MANIPULATOR
 
 from data_agent.abstract_connector import SupportedOperation
-from data_agent.config_manager import PersistentComponent
 from data_agent.exceptions import (
     SafetyErrorManipulateOutsideOfRange,
     SafetyErrorManipulateUnauthorizedTag,
@@ -11,7 +9,7 @@ from data_agent.exceptions import (
 from data_agent.safe_manipulator import SafeManipulator
 
 
-def test_unauthorized_writes(config_setup, connection_manager):
+def test_unauthorized_writes(config_manager, connection_manager):
     conn_name = "test1"
     tag_name = "Static.Float"
     tag_name2 = "Static.Int4"
@@ -41,10 +39,8 @@ def test_unauthorized_writes(config_setup, connection_manager):
     assert res[tag_name]["Quality"] == "Good"
 
     manipulator = SafeManipulator(
-        connection_manager,
-        PersistentComponent(
-            config_setup, CONFIG_SECTION_SAFE_MANIPULATOR, enable_persistence=True
-        ),
+        connection_manager=connection_manager,
+        config=config_manager,
     )
 
     manipulator.register_tags(
