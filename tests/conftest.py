@@ -1,21 +1,13 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import os
-import sys
 
 import pytest
 from aio_pika import ExchangeType, connect_robust
 from amqp_fabric.amq_broker_connector import AmqBrokerConnector, CustomJsonRPC
 
-from data_agent import dist_name
 from data_agent.api import ServiceApi
-from data_agent.config_manager import PersistentComponent
-from data_agent.config_persist import PersistConfig
-from data_agent.config_template import (
-    CONFIG_SECTION_CONNECTION_MANAGER,
-    CONFIG_SECTION_DAQ_SCHEDULER,
-    CONFIG_SECTION_SAFE_MANIPULATOR,
-)
+from data_agent.config_manager import ConfigManager
 from data_agent.connection_manager import ConnectionManager
 from data_agent.connectors.fake_connector import FakeConnector
 from data_agent.daq_scheduler import create_daq_scheduler
@@ -33,11 +25,17 @@ DATA_EXCHANGE_NAME = os.environ.get("DATA_EXCHANGE_NAME", f"{SERVICE_DOMAIN}.daq
 
 
 @pytest.fixture
-def config_setup(request):
-    config = PersistConfig(dist_name, f"data_agent.{sys.platform}")
-    config.clear()
-    config.read(user=False)
-    config["service"]["id"] = SERVICE_ID
+def temp_config_file(tmp_path):
+    """Creates a temporary config file location"""
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("app:\n  interval: 30\nservice:\n  id: test_service\n")
+    return str(config_path)
+
+
+@pytest.fixture
+def config_manager(temp_config_file):
+    config = ConfigManager(config_file=temp_config_file)
+    config.set("service.id", SERVICE_ID)
     yield config
 
 
@@ -50,23 +48,19 @@ def fake_conn():
 
 
 @pytest.fixture
-def connection_manager(config_setup):
+def connection_manager(config_manager):
     connection_manager = ConnectionManager(
-        PersistentComponent(
-            config_setup, CONFIG_SECTION_CONNECTION_MANAGER, enable_persistence=False
-        ),
+        config_manager,
         extra_connectors={"fake": FakeConnector},
     )
     yield connection_manager
 
 
 @pytest.fixture
-def safe_manipulator(config_setup, connection_manager):
+def safe_manipulator(config_manager, connection_manager):
     safe_manipulator = SafeManipulator(
         connection_manager,
-        PersistentComponent(
-            config_setup, CONFIG_SECTION_SAFE_MANIPULATOR, enable_persistence=True
-        ),
+        config=config_manager,
     )
     yield safe_manipulator
 
@@ -122,7 +116,7 @@ async def rpc_client():
 
 @pytest.fixture
 async def rpc_server(
-    config_setup, connection_manager, data_exchanger, safe_manipulator
+    config_manager, connection_manager, data_exchanger, safe_manipulator
 ):
     srv_conn = AmqBrokerConnector(
         amqp_uri=AMQP_URL,
@@ -135,9 +129,7 @@ async def rpc_server(
     scheduler = create_daq_scheduler(
         srv_conn,
         connection_manager,
-        persistence=PersistentComponent(
-            config_setup, CONFIG_SECTION_DAQ_SCHEDULER, enable_persistence=True
-        ),
+        config=config_manager,
     )
     api = ServiceApi(scheduler, connection_manager, data_exchanger, safe_manipulator)
 

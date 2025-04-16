@@ -12,6 +12,7 @@ from .exceptions import (  # SafetyErrorManipulateOutsideOfRateBound,
 log = logging.getLogger(__name__)
 
 CONFIG_KEY = "manipulated_tags"
+CONFIG_DOT_NOTATION = "\\\\D"
 
 
 def _validate_connection_exists(func):
@@ -56,18 +57,30 @@ def _validate_connection_enabled(func):
 
 
 class SafeManipulator:
-    def __init__(self, connection_manager, persistence):
-        self._persistence = persistence
+    def __init__(self, connection_manager, config):
+        self._config = config
         self._connection_manager = connection_manager
 
     @_validate_connection_exists
-    def list_tags(self, conn_name):
-        conns = self._persistence.list_items()
+    def list_tags(self, conn_name, include_attributes=False):
+        conns = self._config.get(CONFIG_KEY)
         if conn_name not in conns:
             return []
 
-        # print(self._persistence.list_items()[conn_name])
-        return list(self._persistence.list_items()[conn_name].keys())
+        if include_attributes:
+            tags = self._config.get(f"{CONFIG_KEY}.{conn_name}")
+
+            # Remove escaped notation
+            tags = {tag.replace(CONFIG_DOT_NOTATION, "."): tags[tag] for tag in tags}
+
+        else:
+            tags = list(self._config.get(f"{CONFIG_KEY}.{conn_name}").keys())
+
+            # Remove escaped notation
+            tags = [tag.replace(CONFIG_DOT_NOTATION, ".") for tag in tags]
+            tags.sort()
+
+        return tags
 
     @_validate_connection_exists
     def register_tags(self, conn_name, tags):
@@ -77,20 +90,22 @@ class SafeManipulator:
                     "One of the bounderies (Upper/Lower/Rate Bound) is not specified"
                 )
 
-            # self._persistence.update_subitem(conn_name, tag, tags[tag])
-        self._persistence.update_item(conn_name, tags)
+            escaped_tag_name = tag.replace(".", CONFIG_DOT_NOTATION)
+            self._config.set(f"{CONFIG_KEY}.{conn_name}.{escaped_tag_name}", tags[tag])
 
     @_validate_connection_exists
     def unregister_tags(self, conn_name, tags):
-        self._persistence.remove_subitems(conn_name, tags)
+        for tag in tags:
+            escaped_tag_name = tag.replace(".", CONFIG_DOT_NOTATION)
+            self._config.remove(f"{CONFIG_KEY}.{conn_name}.{escaped_tag_name}")
 
     @_validate_connection_enabled
     def write_tags(self, conn_name, tags, wait_for_result=True, **kwargs):
         # Test safety
         for tag in tags:
-            reg_tags = self._persistence.list_items()[conn_name]
+            reg_tags = self.list_tags(conn_name, include_attributes=True)
 
-            if tag not in reg_tags.keys():
+            if tag not in reg_tags:
                 raise SafetyErrorManipulateUnauthorizedTag(
                     f"{tag} is not registered as manipulated tag"
                 )

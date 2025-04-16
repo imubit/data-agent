@@ -5,15 +5,12 @@ import pytest
 from amqp_fabric.amq_broker_connector import AmqBrokerConnector
 from conftest import (
     AMQP_URL,
-    CONFIG_SECTION_CONNECTION_MANAGER,
-    CONFIG_SECTION_DAQ_SCHEDULER,
     DATA_EXCHANGE_NAME,
     SERVICE_DOMAIN,
     SERVICE_ID,
     SERVICE_TYPE,
 )
 
-from data_agent.config_manager import PersistentComponent
 from data_agent.connection_manager import ConnectionManager
 from data_agent.connectors.fake_connector import FakeConnector
 from data_agent.daq_scheduler import create_daq_scheduler
@@ -21,7 +18,7 @@ from data_agent.exceptions import DaqJobAlreadyExists, UnrecognizedConnection
 
 
 @pytest.mark.asyncio
-async def test_job_lifecycle(config_setup, mock_channel, connection_manager):
+async def test_job_lifecycle(config_manager, mock_channel, connection_manager):
     conn_name = "fake_conn"
 
     job1_id = "job1"
@@ -40,9 +37,7 @@ async def test_job_lifecycle(config_setup, mock_channel, connection_manager):
     scheduler = create_daq_scheduler(
         broker,
         connection_manager,
-        persistence=PersistentComponent(
-            config_setup, CONFIG_SECTION_DAQ_SCHEDULER, enable_persistence=False
-        ),
+        config=config_manager,
     )
 
     connection_manager.create_connection(conn_name, conn_type="fake", enabled=True)
@@ -120,7 +115,7 @@ async def test_job_lifecycle(config_setup, mock_channel, connection_manager):
 
 
 @pytest.mark.asyncio
-async def test_job_persistence(config_setup, mock_channel):
+async def test_job_persistence(config_manager, mock_channel):
     conn_name = "fake_conn"
 
     job1_id = "job1"
@@ -130,9 +125,7 @@ async def test_job_persistence(config_setup, mock_channel):
     tags2 = ["Static.Int4"]
 
     connection_manager = ConnectionManager(
-        PersistentComponent(
-            config_setup, CONFIG_SECTION_CONNECTION_MANAGER, enable_persistence=True
-        ),
+        config=config_manager,
         extra_connectors={"fake": FakeConnector},
     )
 
@@ -146,9 +139,7 @@ async def test_job_persistence(config_setup, mock_channel):
     scheduler = create_daq_scheduler(
         broker,
         connection_manager,
-        persistence=PersistentComponent(
-            config_setup, CONFIG_SECTION_DAQ_SCHEDULER, enable_persistence=True
-        ),
+        config=config_manager,
     )
 
     connection_manager.create_connection(conn_name, conn_type="fake", enabled=True)
@@ -202,9 +193,7 @@ async def test_job_persistence(config_setup, mock_channel):
     scheduler = create_daq_scheduler(
         broker,
         connection_manager,
-        persistence=PersistentComponent(
-            config_setup, CONFIG_SECTION_DAQ_SCHEDULER, enable_persistence=True
-        ),
+        config=config_manager,
     )
     assert scheduler.list_jobs() == [job1_id, job2_id]
 
@@ -230,7 +219,7 @@ async def test_job_persistence(config_setup, mock_channel):
 
 
 @pytest.mark.asyncio
-async def test_job_reconnect2(config_setup, mock_channel, connection_manager):
+async def test_job_reconnect2(config_manager, mock_channel, connection_manager):
     conn_name = "fake_conn"
 
     job1_id = "job1"
@@ -249,9 +238,7 @@ async def test_job_reconnect2(config_setup, mock_channel, connection_manager):
     scheduler = create_daq_scheduler(
         broker,
         connection_manager,
-        persistence=PersistentComponent(
-            config_setup, CONFIG_SECTION_DAQ_SCHEDULER, enable_persistence=False
-        ),
+        config=config_manager,
     )
 
     connection_manager.create_connection(conn_name, conn_type="fake", enabled=True)

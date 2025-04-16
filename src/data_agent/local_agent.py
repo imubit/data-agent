@@ -2,17 +2,7 @@ import logging
 
 from data_agent import __version__
 from data_agent.api import ServiceApi
-from data_agent.config_manager import (
-    PersistentComponent,
-    component_config_view,
-    init_configuration,
-)
-from data_agent.config_template import (
-    CONFIG_SECTION_CONNECTION_MANAGER,
-    CONFIG_SECTION_LOG,
-    CONFIG_SECTION_SAFE_MANIPULATOR,
-    CONFIG_SECTION_SERVICE,
-)
+from data_agent.config_manager import ConfigManager
 from data_agent.connection_manager import ConnectionManager
 from data_agent.exchanger import DataExchanger
 from data_agent.safe_manipulator import SafeManipulator
@@ -35,9 +25,11 @@ class LocalAgent:
         self._enable_persistance = enable_persistance
 
     def open(self):
-        self._config, _ = init_configuration(self._is_service, loop=None)
-        service_config = component_config_view(self._config, CONFIG_SECTION_SERVICE)
-        log_config = component_config_view(self._config, CONFIG_SECTION_LOG)
+        self._config = ConfigManager(
+            loop=None, enable_persistence=self._enable_persistance
+        )
+
+        service_config = self._config.get("service")
 
         log.info("************ Initializing Data Agent Service ***********************")
         log.info(f" Version:              {__version__}")
@@ -45,26 +37,17 @@ class LocalAgent:
         log.info(
             f" FQN:                  {service_config.domain}.{service_config.type}.{service_config.id}"
         )
-        log.info(f" Config directory:     {self._config.config_dir()}")
-        log.info(f' Logs path:            {log_config["handlers"]["file"]["filename"]}')
+        log.info(f" Config directory:     {self._config.base_path}")
+        log.info(
+            f" Logs path:            {self._config.get('log.handlers.file.filename')}"
+        )
         log.info(
             "***********************************************************************"
         )
 
-        self._connection_manager = ConnectionManager(
-            PersistentComponent(
-                self._config,
-                CONFIG_SECTION_CONNECTION_MANAGER,
-                enable_persistence=self._enable_persistance,
-            )
-        )
+        self._connection_manager = ConnectionManager(self._config)
         self._safe_manipulator = SafeManipulator(
-            self._connection_manager,
-            PersistentComponent(
-                self._config,
-                CONFIG_SECTION_SAFE_MANIPULATOR,
-                enable_persistence=self._enable_persistance,
-            ),
+            self._connection_manager, config=self._config
         )
 
         self._exchanger = DataExchanger(self._connection_manager)

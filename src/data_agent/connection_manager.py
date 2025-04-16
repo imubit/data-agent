@@ -47,8 +47,8 @@ def _validate_connection_enabled(func):
 
 
 class ConnectionManager:
-    def __init__(self, persistence, extra_connectors=None):
-        self._persistence = persistence
+    def __init__(self, config, extra_connectors=None):
+        self._config = config
         self._connections_map = {}
         self._connector_classes = {
             entry.name: entry.load() for entry in self.list_plugins()
@@ -59,7 +59,7 @@ class ConnectionManager:
                 self._connector_classes[conn] = extra_connectors[conn]
 
         # Recreate connections from config
-        connections = self._persistence.list_items()
+        connections = self._config.connections
         for conn in connections:
             self._create_connection(
                 conn_name=conn,
@@ -163,8 +163,9 @@ class ConnectionManager:
         if enabled:
             conn.connect()
 
-        self._persistence.add_item(
-            conn_name, {"type": conn_type, "params": kwargs, "enabled": enabled}
+        self._config.set(
+            f"connections.{conn_name}",
+            {"type": conn_type, "params": kwargs, "enabled": enabled},
         )
 
         log.info(f"Connection '{conn_name}' of type '{conn_type}' created.")
@@ -196,7 +197,7 @@ class ConnectionManager:
     @_validate_connection_exists
     def delete_connection(self, conn_name):
         self._delete_connection(conn_name)
-        self._persistence.remove_item(conn_name)
+        self._config.remove(f"connections.{conn_name}")
 
     def _delete_connection(self, conn_name):
         if self._connections_map[conn_name].connected:
@@ -210,11 +211,11 @@ class ConnectionManager:
         if not self._connections_map[conn_name].connected:
             self._connections_map[conn_name].connect()
 
-        self._persistence.update_subitem(conn_name, "enabled", True)
+        self._config.set(f"connections.{conn_name}.enabled", True)
 
     @_validate_connection_exists
     def disable_connection(self, conn_name):
         if self._connections_map[conn_name].connected:
             self._connections_map[conn_name].disconnect()
 
-        self._persistence.update_subitem(conn_name, "enabled", False)
+        self._config.set(f"connections.{conn_name}.enabled", False)

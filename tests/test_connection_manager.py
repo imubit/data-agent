@@ -1,8 +1,6 @@
 import pytest
-from conftest import CONFIG_SECTION_CONNECTION_MANAGER
 
 from data_agent.abstract_connector import SupportedOperation
-from data_agent.config_manager import PersistentComponent, component_config_view
 from data_agent.connection_manager import ConnectionManager
 from data_agent.connectors.fake_connector import FakeConnector
 from data_agent.exceptions import (
@@ -88,11 +86,9 @@ def test_connection_autodelete(connection_manager):
     del connection_manager
 
 
-def test_connection_persistence(config_setup):
+def test_connection_persistence(config_manager):
     man = ConnectionManager(
-        PersistentComponent(
-            config_setup, CONFIG_SECTION_CONNECTION_MANAGER, enable_persistence=True
-        ),
+        config=config_manager,
         extra_connectors={"fake": FakeConnector},
     )
 
@@ -169,24 +165,10 @@ def test_connection_persistence(config_setup):
     ]
 
     man2 = ConnectionManager(
-        PersistentComponent(
-            config_setup, CONFIG_SECTION_CONNECTION_MANAGER, enable_persistence=True
-        ),
+        config=config_manager,
         extra_connectors={"fake": FakeConnector},
     )
     assert man2.list_connections() == [
-        {
-            "name": "test1",
-            "type": "fake",
-            "category": "historian",
-            "supported_filters": [],
-            "supported_operations": [
-                SupportedOperation.READ_TAG_PERIOD,
-                SupportedOperation.READ_TAG_META,
-            ],
-            "default_attributes": [("tag", {"Type": "str", "Name": "Tag Name"})],
-            "enabled": False,
-        },
         {
             "name": "test2",
             "type": "fake",
@@ -199,17 +181,27 @@ def test_connection_persistence(config_setup):
             "default_attributes": [("tag", {"Type": "str", "Name": "Tag Name"})],
             "enabled": True,
         },
+        {
+            "name": "test1",
+            "type": "fake",
+            "category": "historian",
+            "supported_filters": [],
+            "supported_operations": [
+                SupportedOperation.READ_TAG_PERIOD,
+                SupportedOperation.READ_TAG_META,
+            ],
+            "default_attributes": [("tag", {"Type": "str", "Name": "Tag Name"})],
+            "enabled": False,
+        },
     ]
 
-    config_view = component_config_view(config_setup, CONFIG_SECTION_CONNECTION_MANAGER)
-    assert config_view == {
+    assert config_manager.get("connections") == {
         "test1": {"type": "fake", "params": {}, "enabled": False},
         "test2": {"type": "fake", "params": {}, "enabled": True},
     }
 
     man2.disable_connection("test2")
-    config_view = component_config_view(config_setup, CONFIG_SECTION_CONNECTION_MANAGER)
-    assert config_view == {
+    assert config_manager.get("connections") == {
         "test1": {"type": "fake", "params": {}, "enabled": False},
         "test2": {"type": "fake", "params": {}, "enabled": False},
     }
@@ -218,9 +210,7 @@ def test_connection_persistence(config_setup):
     del man2
 
     man3 = ConnectionManager(
-        PersistentComponent(
-            config_setup, CONFIG_SECTION_CONNECTION_MANAGER, enable_persistence=True
-        ),
+        config=config_manager,
         extra_connectors={"fake": FakeConnector},
     )
     assert man3.list_connections() == [

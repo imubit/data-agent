@@ -2,7 +2,7 @@ import asyncio
 from pprint import pprint
 
 
-async def cli_list_services(broker, config, args):
+async def cli_list_services(broker, config):
     # Sleep to collect keep alives
     print("Waiting 5 seconds for keep alives...")
     await asyncio.sleep(5)

@@ -1,0 +1,7 @@
+---
+BROKER:
+  uri: amqps://admin:NhutSFwChtLzugoMnotz@dev.backbone.sandbox.imubit.io:5671
+INSTRUCTION: list_services
+SERVICE:
+  id: W-MTSEITLIN
+VERBOSE: false

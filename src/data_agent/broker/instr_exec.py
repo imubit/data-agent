@@ -6,9 +6,6 @@ import six
 from aio_pika.exceptions import DeliveryError
 from async_timeout import timeout
 
-from data_agent.config_manager import component_config_view
-from data_agent.config_template import CONFIG_SECTION_SERVICE
-
 global_kwargs = []
 
 
@@ -88,16 +85,16 @@ async def print_formatted_result(
         print("\n\r------------------------------------------------")
 
 
-async def cli_exec(broker, config, args):
-    config_service = component_config_view(config, CONFIG_SECTION_SERVICE)
+async def cli_exec(broker, config):
+    config_service = config.get("service")
 
     service_id = config_service.id
     service_domain = config_service.domain
     service_type = config_service.type
 
     await print_formatted_result(
-        args[0],
-        args[1:] if len(args) > 1 else [],
+        config.unknown_args[0],
+        config.unknown_args[1:] if len(config.unknown_args) > 1 else [],
         broker,
         service_domain,
         service_id,

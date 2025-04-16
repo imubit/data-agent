@@ -1,3 +1,5 @@
+LOAD_DOTENV: true
+
 service:
   id: '' # If empty - host name will be used
   type: 'data-agent'
