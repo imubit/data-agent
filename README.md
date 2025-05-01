@@ -6,9 +6,10 @@
 # Data Agent
 
 Python package for accessing real-time and historical data on industrial historians and control systems.
-Different historian protocols and APIs are implemented through standalone plugins.
+Different historian protocols and APIs are implemented through standalone plugins:
 
-*THIS PACKAGE IS USELESS WITHOUT EXTERNAL PLUGINS IMPLEMENTING TARGET SYSTEM CUSTOM DATA ACCESS PROTOCOLS*
+* https://github.com/imubit/data-agent-osisoft-pi
+* https://github.com/imubit/data-agent-aspen-ip21
 
 ## Description
 

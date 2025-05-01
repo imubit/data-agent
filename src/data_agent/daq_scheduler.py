@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 from datetime import timedelta
@@ -80,11 +81,12 @@ class DAQScheduler(AsyncIOScheduler):
 
             read_time = time.time() - start_time
 
-            msg = {
-                "job_id": job_id,
+            payload = {
                 "sample_id": self._job_state[job_id]["iter_counter"],
                 "data": tag_values,
             }
+
+            msg = json.dumps(payload, sort_keys=True, default=str).encode()
 
             # Publish
             to_publish = [f'{t}={tag_values[t]["Value"]}' for t in tag_values]

@@ -2,6 +2,8 @@
 import asyncio
 import os
 
+import numpy as np
+import pandas as pd
 import pytest
 from aio_pika import ExchangeType, connect_robust
 from amqp_fabric.amq_broker_connector import AmqBrokerConnector, CustomJsonRPC
@@ -12,6 +14,7 @@ from data_agent.connection_manager import ConnectionManager
 from data_agent.connectors.fake_connector import FakeConnector
 from data_agent.daq_scheduler import create_daq_scheduler
 from data_agent.exchanger import DataExchanger
+from data_agent.history_harvester import HistoryHarvester
 from data_agent.safe_manipulator import SafeManipulator
 
 AMQP_URL = os.environ.get("BROKER_URL", "amqp://guest:guest@localhost/")
@@ -21,7 +24,7 @@ SERVICE_DOMAIN = os.environ.get("SERVICE_DOMAIN", "some-domain")
 RPC_EXCHANGE_NAME = os.environ.get(
     "RPC_EXCHANGE_NAME", f"{SERVICE_DOMAIN}.api.{SERVICE_TYPE}.{SERVICE_ID}"
 )
-DATA_EXCHANGE_NAME = os.environ.get("DATA_EXCHANGE_NAME", f"{SERVICE_DOMAIN}.daq.data")
+DATA_EXCHANGE_NAME = os.environ.get("DATA_EXCHANGE_NAME", f"{SERVICE_DOMAIN}.data")
 
 
 @pytest.fixture
@@ -74,14 +77,22 @@ def data_exchanger(connection_manager):
 
 
 @pytest.fixture
-async def broker_conn():
-    conn = await connect_robust(
-        AMQP_URL,
-        client_properties={"connection_name": "rpc_srv"},
+async def amq_broker():
+    broker = AmqBrokerConnector(
+        amqp_uri=AMQP_URL,
+        service_domain=SERVICE_DOMAIN,
+        service_type=SERVICE_TYPE,
+        service_id=SERVICE_ID,
     )
+    await broker.open()
+    yield broker
+    await broker.close()
 
-    yield conn
-    await conn.close()
+
+@pytest.fixture
+async def hist_harvest(connection_manager, amq_broker):
+    harvester = HistoryHarvester(connection_manager, amq_broker)
+    yield harvester
 
 
 @pytest.fixture
@@ -116,29 +127,21 @@ async def rpc_client():
 
 @pytest.fixture
 async def rpc_server(
-    config_manager, connection_manager, data_exchanger, safe_manipulator
+    config_manager, amq_broker, connection_manager, data_exchanger, safe_manipulator
 ):
-    srv_conn = AmqBrokerConnector(
-        amqp_uri=AMQP_URL,
-        service_domain=SERVICE_DOMAIN,
-        service_type=SERVICE_TYPE,
-        service_id=SERVICE_ID,
-    )
-    await srv_conn.open()
-
     scheduler = create_daq_scheduler(
-        srv_conn,
+        amq_broker,
         connection_manager,
         config=config_manager,
     )
     api = ServiceApi(scheduler, connection_manager, data_exchanger, safe_manipulator)
 
-    await srv_conn.rpc_register(api)
+    await amq_broker.rpc_register(api)
     await asyncio.sleep(0.2)
 
-    yield srv_conn
+    yield amq_broker
 
-    await srv_conn.close()
+    await amq_broker.close()
 
 
 @pytest.fixture
@@ -165,3 +168,20 @@ async def data_queue():
     await queue.unbind(DATA_EXCHANGE_NAME, "")
     await channel.close()
     await client_conn.close()
+
+
+@pytest.fixture
+def test_dataframe():
+    # Create a sample DataFrame with mixed dtypes
+    dates = pd.date_range(start="2025-01-01", periods=5, freq="h")
+    df = pd.DataFrame(
+        {
+            "float_col": np.linspace(0.1, 0.5, 5),
+            "int_col": np.arange(5),
+            "str_col": [f"str{n}" for n in range(5)],
+            "bool_col": [True, False, True, False, True],
+        },
+        index=dates,
+    )
+    df.index.name = "timestamp"
+    return df

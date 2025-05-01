@@ -2,14 +2,7 @@ import asyncio
 import json
 
 import pytest
-from amqp_fabric.amq_broker_connector import AmqBrokerConnector
-from conftest import (
-    AMQP_URL,
-    DATA_EXCHANGE_NAME,
-    SERVICE_DOMAIN,
-    SERVICE_ID,
-    SERVICE_TYPE,
-)
+from conftest import DATA_EXCHANGE_NAME, SERVICE_ID
 
 from data_agent.connection_manager import ConnectionManager
 from data_agent.connectors.fake_connector import FakeConnector
@@ -18,7 +11,9 @@ from data_agent.exceptions import DaqJobAlreadyExists, UnrecognizedConnection
 
 
 @pytest.mark.asyncio
-async def test_job_lifecycle(config_manager, mock_channel, connection_manager):
+async def test_job_lifecycle(
+    config_manager, amq_broker, mock_channel, connection_manager
+):
     conn_name = "fake_conn"
 
     job1_id = "job1"
@@ -27,15 +22,8 @@ async def test_job_lifecycle(config_manager, mock_channel, connection_manager):
     tags1 = ["Random.Real8", "Random.String"]
     tags2 = ["Static.Int4"]
 
-    broker = AmqBrokerConnector(
-        amqp_uri=AMQP_URL,
-        service_domain=SERVICE_DOMAIN,
-        service_type=SERVICE_TYPE,
-        service_id=SERVICE_ID,
-    )
-    await broker.open()
     scheduler = create_daq_scheduler(
-        broker,
+        amq_broker,
         connection_manager,
         config=config_manager,
     )
@@ -100,7 +88,7 @@ async def test_job_lifecycle(config_manager, mock_channel, connection_manager):
         incoming_message = await mock_queue.get(timeout=5)
         payload = json.loads(incoming_message.body.decode())
         # print('<<<<<<<< TAGS READ <<<<<<<<<<<<<', payload)
-        assert payload["job_id"] in [job1_id, job2_id]
+        assert incoming_message.headers["job_id"] in [job1_id, job2_id]
         assert (
             "Static.Float" in payload["data"].keys()
             or "Random.Real8" in payload["data"].keys()
@@ -111,11 +99,9 @@ async def test_job_lifecycle(config_manager, mock_channel, connection_manager):
     conn.disconnect()
     connection_manager.delete_connection(conn_name)
 
-    await broker.close()
-
 
 @pytest.mark.asyncio
-async def test_job_persistence(config_manager, mock_channel):
+async def test_job_persistence(config_manager, amq_broker, mock_channel):
     conn_name = "fake_conn"
 
     job1_id = "job1"
@@ -129,15 +115,8 @@ async def test_job_persistence(config_manager, mock_channel):
         extra_connectors={"fake": FakeConnector},
     )
 
-    broker = AmqBrokerConnector(
-        amqp_uri=AMQP_URL,
-        service_domain=SERVICE_DOMAIN,
-        service_type=SERVICE_TYPE,
-        service_id=SERVICE_ID,
-    )
-    await broker.open()
     scheduler = create_daq_scheduler(
-        broker,
+        amq_broker,
         connection_manager,
         config=config_manager,
     )
@@ -148,7 +127,6 @@ async def test_job_persistence(config_manager, mock_channel):
 
     # Mock (simulation objects)
     mock_queue = await mock_channel.declare_queue("testing", auto_delete=True)
-    # await mock_queue.bind(DATA_EXCHANGE_NAME)
     await mock_queue.bind(
         DATA_EXCHANGE_NAME, arguments={"service_id": SERVICE_ID, "x-match": "all"}
     )
@@ -179,7 +157,7 @@ async def test_job_persistence(config_manager, mock_channel):
         incoming_message = await mock_queue.get(timeout=5)
         payload = json.loads(incoming_message.body.decode())
         # print('<<<<<<<< TAGS READ <<<<<<<<<<<<<', payload)
-        assert payload["job_id"] in [job1_id, job2_id]
+        assert incoming_message.headers["job_id"] in [job1_id, job2_id]
         assert (
             "Static.Int4" in payload["data"].keys()
             or "Random.Real8" in payload["data"].keys()
@@ -191,7 +169,7 @@ async def test_job_persistence(config_manager, mock_channel):
     await mock_queue.purge()
 
     scheduler = create_daq_scheduler(
-        broker,
+        amq_broker,
         connection_manager,
         config=config_manager,
     )
@@ -204,7 +182,7 @@ async def test_job_persistence(config_manager, mock_channel):
         incoming_message = await mock_queue.get(timeout=5)
         payload = json.loads(incoming_message.body.decode())
         # print('<<<<<<<< TAGS READ <<<<<<<<<<<<<', payload)
-        assert payload["job_id"] in [job1_id, job2_id]
+        assert incoming_message.headers["job_id"] in [job1_id, job2_id]
         assert (
             "Static.Int4" in payload["data"].keys()
             or "Random.Real8" in payload["data"].keys()
@@ -215,11 +193,11 @@ async def test_job_persistence(config_manager, mock_channel):
     conn.disconnect()
     connection_manager.delete_connection(conn_name)
 
-    await broker.close()
-
 
 @pytest.mark.asyncio
-async def test_job_reconnect2(config_manager, mock_channel, connection_manager):
+async def test_job_reconnect2(
+    config_manager, amq_broker, mock_channel, connection_manager
+):
     conn_name = "fake_conn"
 
     job1_id = "job1"
@@ -228,15 +206,8 @@ async def test_job_reconnect2(config_manager, mock_channel, connection_manager):
     tags1 = ["Random.Real8", "Random.String"]
     tags2 = ["Static.Int4"]
 
-    broker = AmqBrokerConnector(
-        amqp_uri=AMQP_URL,
-        service_domain=SERVICE_DOMAIN,
-        service_type=SERVICE_TYPE,
-        service_id=SERVICE_ID,
-    )
-    await broker.open()
     scheduler = create_daq_scheduler(
-        broker,
+        amq_broker,
         connection_manager,
         config=config_manager,
     )
@@ -301,7 +272,7 @@ async def test_job_reconnect2(config_manager, mock_channel, connection_manager):
         incoming_message = await mock_queue.get(timeout=5)
         payload = json.loads(incoming_message.body.decode())
         # print('<<<<<<<< TAGS READ <<<<<<<<<<<<<', payload)
-        assert payload["job_id"] in [job1_id, job2_id]
+        assert incoming_message.headers["job_id"] in [job1_id, job2_id]
         assert (
             "Static.Float" in payload["data"].keys()
             or "Random.Real8" in payload["data"].keys()
@@ -314,5 +285,3 @@ async def test_job_reconnect2(config_manager, mock_channel, connection_manager):
     await mock_queue.unbind(DATA_EXCHANGE_NAME, "")
     conn.disconnect()
     connection_manager.delete_connection(conn_name)
-
-    await broker.close()

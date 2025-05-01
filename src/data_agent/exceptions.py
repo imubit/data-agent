@@ -76,3 +76,7 @@ class SafetyErrorManipulateOutsideOfRateBound(Exception):
 
 class DaqJobAlreadyExists(Exception):
     pass
+
+
+class HistoryHarvesterJobAlreadyExists(Exception):
+    pass

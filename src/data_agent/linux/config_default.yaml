@@ -160,6 +160,11 @@ log: # standard logging dictConfig
       level: 'DEBUG'
       propagate: False
 
+    data_agent.history_harvester:
+      handlers: ['console', 'amqp']
+      level: 'DEBUG'
+      propagate: False
+
     data_agent.connection_manager:
       handlers: ['console', 'amqp']
       level: 'DEBUG'

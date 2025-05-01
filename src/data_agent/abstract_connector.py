@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from enum import IntEnum
 from functools import wraps
 from typing import Union
 
@@ -7,7 +8,7 @@ import pandas as pd
 from .exceptions import ConnectionNotActive, TagsGroupNotFound
 
 
-class SupportedOperation:
+class SupportedOperation(IntEnum):
     READ_TAG_VALUE = 1
     WRITE_TAG_VALUE = 2
     READ_TAG_PERIOD = 3
@@ -18,6 +19,12 @@ class SupportedOperation:
     WRITE_TAG_META = 8
     CREATE_TAG = 9
     DELETE_TAG = 10
+
+
+class HistDataFormat(IntEnum):
+    DATAFRAME = (1,)
+    SERIES_LIST = (2,)
+    DICTIONARY = 3
 
 
 STANDARD_ATTRIBUTES = {
