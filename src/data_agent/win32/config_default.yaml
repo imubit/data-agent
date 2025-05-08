@@ -175,6 +175,12 @@ log: # standard logging dictConfig
       level: 'DEBUG'
       propagate: False
 
+    data_agent.history_harvester:
+#      handlers: ['console', 'ntevent', 'file', 'err_file', 'amqp']
+      handlers: ['console', 'ntevent', 'file', 'err_file']
+      level: 'DEBUG'
+      propagate: False
+
     data_agent.connection_manager:
       handlers: ['console', 'err_file']
       level: 'DEBUG'

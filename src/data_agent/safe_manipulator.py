@@ -22,7 +22,7 @@ def _validate_connection_exists(func):
         elif len(args) > 0:
             conn_name = args[0]
 
-        if conn_name not in self._connection_manager.list_connections(
+        if conn_name not in self.connection_manager.list_connections(
             include_details=False
         ):
             raise UnrecognizedConnection(
@@ -41,7 +41,7 @@ def _validate_connection_enabled(func):
         elif len(args) > 0:
             conn_name = args[0]
 
-        if conn_name not in self._connection_manager.list_connections(
+        if conn_name not in self.connection_manager.list_connections(
             include_details=False
         ):
             raise UnrecognizedConnection(
@@ -49,7 +49,7 @@ def _validate_connection_enabled(func):
             )
 
         # Check if connection active
-        self._connection_manager.connection(conn_name)
+        self.connection_manager.connection(conn_name)
 
         return func(self, *args, **kwargs)
 
@@ -58,23 +58,23 @@ def _validate_connection_enabled(func):
 
 class SafeManipulator:
     def __init__(self, connection_manager, config):
-        self._config = config
-        self._connection_manager = connection_manager
+        self.config = config
+        self.connection_manager = connection_manager
 
     @_validate_connection_exists
     def list_tags(self, conn_name, include_attributes=False):
-        conns = self._config.get(CONFIG_KEY)
+        conns = self.config.get(CONFIG_KEY)
         if conn_name not in conns:
             return []
 
         if include_attributes:
-            tags = self._config.get(f"{CONFIG_KEY}.{conn_name}")
+            tags = self.config.get(f"{CONFIG_KEY}.{conn_name}")
 
             # Remove escaped notation
             tags = {tag.replace(CONFIG_DOT_NOTATION, "."): tags[tag] for tag in tags}
 
         else:
-            tags = list(self._config.get(f"{CONFIG_KEY}.{conn_name}").keys())
+            tags = list(self.config.get(f"{CONFIG_KEY}.{conn_name}").keys())
 
             # Remove escaped notation
             tags = [tag.replace(CONFIG_DOT_NOTATION, ".") for tag in tags]
@@ -91,13 +91,13 @@ class SafeManipulator:
                 )
 
             escaped_tag_name = tag.replace(".", CONFIG_DOT_NOTATION)
-            self._config.set(f"{CONFIG_KEY}.{conn_name}.{escaped_tag_name}", tags[tag])
+            self.config.set(f"{CONFIG_KEY}.{conn_name}.{escaped_tag_name}", tags[tag])
 
     @_validate_connection_exists
     def unregister_tags(self, conn_name, tags):
         for tag in tags:
             escaped_tag_name = tag.replace(".", CONFIG_DOT_NOTATION)
-            self._config.remove(f"{CONFIG_KEY}.{conn_name}.{escaped_tag_name}")
+            self.config.remove(f"{CONFIG_KEY}.{conn_name}.{escaped_tag_name}")
 
     @_validate_connection_enabled
     def write_tags(self, conn_name, tags, wait_for_result=True, **kwargs):
@@ -133,5 +133,5 @@ class SafeManipulator:
                     f'Upper Bound constraint violated - UB: {constraints["ub"]}, Value: {tags[tag]}'
                 )
 
-        conn = self._connection_manager.connection(conn_name)
+        conn = self.connection_manager.connection(conn_name)
         conn.write_tag_values(tags, wait_for_result, **kwargs)
