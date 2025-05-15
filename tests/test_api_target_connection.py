@@ -65,6 +65,9 @@ async def test_lifecycle(rpc_client, rpc_server):
         }
     ]
 
+    info = await rpc_client.proxy.connection_info(conn_name=conn_name)
+    assert info == {"OneLiner": "[fake] 'absolute-fake'"}
+
     # Properties
     properties = await rpc_client.proxy.read_tag_attributes(
         conn_name=conn_name, tags=["Random.String", "Random.Real8"]

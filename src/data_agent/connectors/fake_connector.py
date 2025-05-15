@@ -99,7 +99,9 @@ class FakeConnector(GroupsAwareConnector):
         self._groups = {}
 
     def connection_info(self):
-        pass
+        return {
+            "OneLiner": f"[{self.TYPE}] 'absolute-fake'",
+        }
 
     @active_connection
     def list_tags(

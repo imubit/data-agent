@@ -22,8 +22,8 @@ class BrokerAgent:
     _data_exchanger = None
     _scheduler = None
 
-    async def init(self, loop, is_service=False, enable_persistance=True):
-        self._config = ConfigManager(loop=loop, enable_persistance=enable_persistance)
+    async def init(self, loop, is_service=False, enable_persistence=True):
+        self._config = ConfigManager(loop=loop, enable_persistence=enable_persistence)
 
         service_config = self._config.get("service")
         broker_config = self._config.get("broker")
