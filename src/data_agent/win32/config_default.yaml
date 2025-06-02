@@ -72,10 +72,10 @@ log: # standard logging dictConfig
 #          level: 'WARNING',
 #          propagate: False
 
-#    amqp_fabric.amq_broker_connector:
-#      handlers: ['console', 'ntevent', 'file', 'err_file']
-#      level: 'INFO'
-#      propagate: True
+    amqp_fabric.amq_broker_connector:
+      handlers: ['console', 'ntevent', 'file', 'err_file']
+      level: 'INFO'
+      propagate: True
 
     asyncio:
       handlers: ['console', 'err_file']

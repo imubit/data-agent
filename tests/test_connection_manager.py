@@ -24,7 +24,9 @@ def test_connection_lifecycle(connection_manager):
 
     # Create
     assert connection_manager.list_connections() == []
-    connection_manager.create_connection(conn_name=conn_name, conn_type="fake")
+    connection_manager.create_connection(
+        conn_name=conn_name, conn_type="fake", arg_example="me"
+    )
     assert connection_manager.list_connections() == [
         {
             "name": "test1",

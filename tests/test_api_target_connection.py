@@ -18,7 +18,9 @@ async def test_lifecycle(rpc_client, rpc_server):
 
     # Create
     assert await rpc_client.proxy.list_connections() == []
-    await rpc_client.proxy.create_connection(conn_name=conn_name, conn_type="fake")
+    await rpc_client.proxy.create_connection(
+        conn_name=conn_name, conn_type="fake", arg_example="me"
+    )
     assert await rpc_client.proxy.list_connections() == [
         {
             "name": "test1",
@@ -66,7 +68,7 @@ async def test_lifecycle(rpc_client, rpc_server):
     ]
 
     info = await rpc_client.proxy.connection_info(conn_name=conn_name)
-    assert info == {"OneLiner": "[fake] 'absolute-fake'"}
+    assert info == {"OneLiner": "[fake] 'absolute-fake'", "ArgExample": "me"}
 
     # Properties
     properties = await rpc_client.proxy.read_tag_attributes(
