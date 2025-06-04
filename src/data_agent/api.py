@@ -321,13 +321,13 @@ class ServiceApi(AbstractServiceApi):
 
     # ================== JOBS ===================
     @traceapi
-    def list_jobs(self):
+    def list_jobs(self, conn_name=None):
         """List all running DAQ jobs
 
         :return:
         """
 
-        return self._scheduler.list_jobs()
+        return self._scheduler.list_jobs(conn_name=conn_name)
 
     @traceapi
     def create_job(
