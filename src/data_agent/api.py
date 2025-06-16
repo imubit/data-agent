@@ -367,6 +367,15 @@ class ServiceApi(AbstractServiceApi):
         self._scheduler.remove_job(job_id)
 
     @traceapi
+    def job_info(self, job_id: str):
+        """Return list of tags in the job
+
+        :return:
+        """
+
+        return self._scheduler.job_info(job_id)
+
+    @traceapi
     def list_job_tags(self, job_id: str):
         """Return list of tags in the job
 

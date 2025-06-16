@@ -39,12 +39,28 @@ async def test_job_create_modify(rpc_client, rpc_server, data_queue):
     await rpc_client.proxy.create_job(
         job_id=job1_id, conn_name=conn_name, tags=tags1, seconds=1
     )
+
+    assert await rpc_client.proxy.job_info(job_id=job1_id) == {
+        "job_id": "job1",
+        "conn_name": "test1",
+        "tags": ["Random.Real8", "Random.String"],
+        "seconds": 1,
+        "from_cache": True,
+        "total_iterations": 0,
+        "last_successful_timestamp": None,
+        "last_exception": None,
+        "last_exception_timestamp": None,
+    }
+
     await rpc_client.proxy.create_job(
         job_id=job2_id, conn_name=conn_name, tags=tags2, seconds=1
     )
     assert await rpc_client.proxy.list_jobs() == [job1_id, job2_id]
 
     await asyncio.sleep(1.5)
+
+    info = await rpc_client.proxy.job_info(job_id=job1_id)
+    assert info["total_iterations"] == 1
 
     # Receive 2 messages (1 should be from 1st job and another from 2nd)
     for i in range(2):
