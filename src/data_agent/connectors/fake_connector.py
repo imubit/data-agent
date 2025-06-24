@@ -45,9 +45,10 @@ class FakeConnector(GroupsAwareConnector):
     def target_info(_):
         return {"Name": "absolute-fake", "Endpoints": []}
 
-    def __init__(self, conn_name="fake_client", **kwargs):
+    def __init__(self, conn_name="fake_client", arg_example="val", **kwargs):
         super(FakeConnector, self).__init__(conn_name)
         self._connected = False
+        self._arg_example = arg_example
         self._tags = {
             "Static": {
                 "Float": {
@@ -99,7 +100,10 @@ class FakeConnector(GroupsAwareConnector):
         self._groups = {}
 
     def connection_info(self):
-        pass
+        return {
+            "OneLiner": f"[{self.TYPE}] 'absolute-fake'",
+            "ArgExample": self._arg_example,
+        }
 
     @active_connection
     def list_tags(

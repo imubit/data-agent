@@ -1,7 +1,8 @@
+import datetime as dt
 import json
 import logging
 import time
-from datetime import timedelta
+from datetime import timedelta, timezone
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers import interval
@@ -97,8 +98,15 @@ class DAQScheduler(AsyncIOScheduler):
                 f'Data publish (read time={read_time:.2f}s): {", ".join(to_publish[:120])}'
             )
             broker.publish_data(msg, headers={"job_id": job_id})
+            self._job_state[job_id]["last_successful_timestamp"] = str(
+                dt.datetime.now(timezone.utc).timestamp()
+            )
 
         except Exception as e:
+            self._job_state[job_id]["last_exception_timestamp"] = str(
+                dt.datetime.now(timezone.utc).timestamp()
+            )
+            self._job_state[job_id]["last_exception"] = str(e)
             log.exception(f'Exception in job "{job_id}" - {e}')
 
     def list_jobs(self, conn_name=None):
@@ -206,7 +214,12 @@ class DAQScheduler(AsyncIOScheduler):
             args=[job_id, conn, self._broker_conn, tags, from_cache, refresh_rate_ms],
         )
 
-        self._job_state[job_id] = {"iter_counter": 0}
+        self._job_state[job_id] = {
+            "iter_counter": 0,
+            "last_successful_timestamp": None,
+            "last_exception": None,
+            "last_exception_timestamp": None,
+        }
 
         return job
 
@@ -224,6 +237,24 @@ class DAQScheduler(AsyncIOScheduler):
             #
             if persist:
                 self._config.remove(f"{DAQ_CONFIG_KEY}.{j}")
+
+    def job_info(self, job_id):
+        job = self.get_job(job_id)
+        return {
+            "job_id": job_id,
+            "conn_name": job.args[1].name,
+            "tags": job.args[3],
+            "seconds": int(job.args[5] / 1000),
+            "from_cache": job.args[4],
+            "total_iterations": self._job_state[job_id]["iter_counter"],
+            "last_successful_timestamp": self._job_state[job_id][
+                "last_successful_timestamp"
+            ],
+            "last_exception": self._job_state[job_id]["last_exception"],
+            "last_exception_timestamp": self._job_state[job_id][
+                "last_exception_timestamp"
+            ],
+        }
 
     def list_tags(self, job_id):
         job = self.get_job(job_id)

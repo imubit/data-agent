@@ -46,6 +46,18 @@ async def test_job_lifecycle(
     )
     assert scheduler.get_job(job1_id).trigger.interval.seconds == 2
 
+    assert scheduler.job_info(job1_id) == {
+        "job_id": "job1",
+        "conn_name": "fake_conn",
+        "tags": ["Random.String"],
+        "seconds": 2,
+        "from_cache": True,
+        "total_iterations": 0,
+        "last_successful_timestamp": None,
+        "last_exception": None,
+        "last_exception_timestamp": None,
+    }
+
     # Recreate with 1 second nd extra tag
     scheduler.create_scan_job(
         job_id=job1_id,
@@ -55,6 +67,18 @@ async def test_job_lifecycle(
         update_on_conflict=True,
     )
     assert scheduler.get_job(job1_id).trigger.interval.seconds == 1
+
+    assert scheduler.job_info(job1_id) == {
+        "job_id": "job1",
+        "conn_name": "fake_conn",
+        "tags": ["Random.Real8", "Random.String"],
+        "seconds": 1,
+        "from_cache": True,
+        "total_iterations": 0,
+        "last_successful_timestamp": None,
+        "last_exception": None,
+        "last_exception_timestamp": None,
+    }
 
     # Job2
     scheduler.create_scan_job(

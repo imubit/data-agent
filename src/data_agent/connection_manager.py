@@ -50,6 +50,9 @@ class ConnectionManager:
     def __init__(self, config, extra_connectors=None):
         self._config = config
         self._connections_map = {}
+
+        log.info("Enumerating connection plugins....")
+
         self._connector_classes = {
             entry.name: entry.load() for entry in self.list_plugins()
         }
@@ -59,6 +62,8 @@ class ConnectionManager:
                 self._connector_classes[conn] = extra_connectors[conn]
 
         # Recreate connections from config
+        log.info("Connecting to pre-configured target systems....")
+
         connections = self._config.connections
         for conn in connections:
             self._create_connection(
@@ -68,9 +73,10 @@ class ConnectionManager:
             )
             if connections[conn]["enabled"]:
                 try:
+                    log.info(f"Enabling connection to '{conn}'...")
                     self.enable_connection(conn)
                 except Exception as e:
-                    log.error(f"Error enabling connection {conn} - {e}. ")
+                    log.error(f"Error enabling connection '{conn}' - {e}. ")
                     # self.disable_connection(conn)
 
         log.info(
